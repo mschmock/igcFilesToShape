@@ -1,7 +1,7 @@
 //Autor: Manuel Schmocker
 //Datum: 02.04.2020
 
-package ch.manuel.igctoshape.geodata;
+package ch.manuel.igctoraster.geodata;
 
 // Klasse zum Verwalten der Daten pro Gemeinde
 

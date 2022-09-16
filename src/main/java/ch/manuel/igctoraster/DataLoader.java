@@ -1,9 +1,9 @@
 //Autor: Manuel Schmocker
 //Datum: 13.04.2020
-package ch.manuel.igctoshape;
+package ch.manuel.igctoraster;
 
 import ch.manuel.utilities.MyUtilities;
-import ch.manuel.igctoshape.geodata.GeoData;
+import ch.manuel.igctoraster.geodata.GeoData;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
