@@ -4,17 +4,33 @@
  */
 package ch.manuel.igctoraster.gui;
 
+import java.awt.Point;
+
 /**
  *
  * @author Schmocker
  */
 public class MainFrame extends javax.swing.JFrame {
 
+  public static InfoForm infoForm;
+
   /**
    * Creates new form MainFrame
    */
   public MainFrame() {
     initComponents();
+    initFrames();
+  }
+
+  /**
+   * Creates the depending frames
+   */
+  private void initFrames() {
+    // create InfoFrame, don't show it
+    java.awt.EventQueue.invokeLater(() -> {
+      infoForm = new InfoForm(new javax.swing.JFrame(), true);
+      infoForm.setVisible(false);
+    });
   }
 
   /**
@@ -25,16 +41,44 @@ public class MainFrame extends javax.swing.JFrame {
   // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
   private void initComponents() {
 
+    graphicPanel1 = new ch.manuel.igctoraster.graphics.GraphicPanel();
     jMenuBar1 = new javax.swing.JMenuBar();
     jMenu1 = new javax.swing.JMenu();
     jMenu2 = new javax.swing.JMenu();
+    jMenuItem1 = new javax.swing.JMenuItem();
 
     setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+    graphicPanel1.addMouseListener(new java.awt.event.MouseAdapter() {
+      public void mouseClicked(java.awt.event.MouseEvent evt) {
+        graphicPanel1MouseClicked(evt);
+      }
+    });
+
+    javax.swing.GroupLayout graphicPanel1Layout = new javax.swing.GroupLayout(graphicPanel1);
+    graphicPanel1.setLayout(graphicPanel1Layout);
+    graphicPanel1Layout.setHorizontalGroup(
+      graphicPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGap(0, 800, Short.MAX_VALUE)
+    );
+    graphicPanel1Layout.setVerticalGroup(
+      graphicPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGap(0, 579, Short.MAX_VALUE)
+    );
 
     jMenu1.setText("File");
     jMenuBar1.add(jMenu1);
 
-    jMenu2.setText("Edit");
+    jMenu2.setText("Info");
+
+    jMenuItem1.setText("About");
+    jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        jMenuItem1ActionPerformed(evt);
+      }
+    });
+    jMenu2.add(jMenuItem1);
+
     jMenuBar1.add(jMenu2);
 
     setJMenuBar(jMenuBar1);
@@ -43,21 +87,34 @@ public class MainFrame extends javax.swing.JFrame {
     getContentPane().setLayout(layout);
     layout.setHorizontalGroup(
       layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGap(0, 800, Short.MAX_VALUE)
+      .addComponent(graphicPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
     );
     layout.setVerticalGroup(
       layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGap(0, 579, Short.MAX_VALUE)
+      .addComponent(graphicPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
     );
 
     pack();
   }// </editor-fold>//GEN-END:initComponents
 
+  private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+    // show InfoForm
+    infoForm.setVisible(true);
+  }//GEN-LAST:event_jMenuItem1ActionPerformed
+
+  private void graphicPanel1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_graphicPanel1MouseClicked
+    // get name of polygon
+    Point p = new Point(evt.getX(), evt.getY());
+    MainFrame.graphicPanel1.setNameOnClick(p);
+    MainFrame.graphicPanel1.repaintPanel();
+  }//GEN-LAST:event_graphicPanel1MouseClicked
 
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
-  private javax.swing.JMenu jMenu1;
-  private javax.swing.JMenu jMenu2;
-  private javax.swing.JMenuBar jMenuBar1;
+  private static ch.manuel.igctoraster.graphics.GraphicPanel graphicPanel1;
+  private static javax.swing.JMenu jMenu1;
+  private static javax.swing.JMenu jMenu2;
+  private static javax.swing.JMenuBar jMenuBar1;
+  private static javax.swing.JMenuItem jMenuItem1;
   // End of variables declaration//GEN-END:variables
 }
