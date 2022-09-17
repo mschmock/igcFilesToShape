@@ -155,7 +155,7 @@ public class MyUtilities {
         }
     }
     
-    // Dialog zum Speichern der Datei (wird von der Methode "saveFile()" aufgerufen
+    // Dialog zum Öffnen der Datei (wird von der Methode "saveFile()" aufgerufen
     public static String getOpenFileDialog(java.awt.Frame f, String title, String defDir, String fileType) {
         java.awt.FileDialog fd = new java.awt.FileDialog(f, title, java.awt.FileDialog.LOAD);
         fd.setFile(fileType);

@@ -1,5 +1,6 @@
 // Autor: Manuel Schmocker
 // Datum: 17.09.2022
+
 package ch.manuel.igctoraster.graphics;
 
 import ch.manuel.igctoraster.DataLoader;
@@ -158,7 +159,7 @@ public class GraphicPanel extends JPanel {
       Shape shape = this.tx.createTransformedShape(listPoly.get(i));
       if (shape.contains(p)) {
         GraphicPanel.selectedMunicip = GraphicPanel.mapID.get(i);
-//        MainFrame.setStatusText("Selected: " + GraphicPanel.mapID.get(i).getName());
+        MainFrame.setStatusText("Selected: " + GraphicPanel.mapID.get(i).getName());
         break;
       }
     }
