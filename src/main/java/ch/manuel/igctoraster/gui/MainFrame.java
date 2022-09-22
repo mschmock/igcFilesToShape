@@ -138,9 +138,8 @@ public class MainFrame extends javax.swing.JFrame {
   private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
     // open file dialog
     String path;
-    
     path = MyUtilities.getOpenFileDialog(this, "Open IGC-file", "Documents", "*.igc");
-    System.out.print(path);
+    System.out.println(path);
   }//GEN-LAST:event_jMenuItem2ActionPerformed
 
 

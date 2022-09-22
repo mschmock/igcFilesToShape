@@ -1,5 +1,5 @@
 //Autor: Manuel Schmocker
-//Datum: 07.05.2020
+//Datum: 22.09.2022
 
 package ch.manuel.igctoraster.gui;
 
@@ -23,7 +23,7 @@ public class InfoDialog extends javax.swing.JDialog implements Runnable {
         // inital text:
         long maxMem = Runtime.getRuntime().maxMemory() / (1024*1024);
         int nbProcessors = Runtime.getRuntime().availableProcessors();
-        jTextArea1.setText( "Starting igcToShape...\n" +
+        jTextArea1.setText( "Starting igcToRaster...\n" +
                             "Available heap size: " + maxMem + " MB\n" +
                             "Available processors: " + nbProcessors + "\n");
         // OK button not clickable
@@ -48,7 +48,7 @@ public class InfoDialog extends javax.swing.JDialog implements Runnable {
     jButton2 = new javax.swing.JButton();
 
     setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-    setTitle("Startup EpiSim");
+    setTitle("Startup IGC to Raster");
     setResizable(false);
 
     jLabel1.setText("Daten laden:");
