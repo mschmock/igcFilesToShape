@@ -3,6 +3,7 @@
 
 package ch.manuel.utilities;
 
+import java.io.File;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import javax.swing.JOptionPane;
@@ -156,7 +157,7 @@ public class MyUtilities {
     }
     
     // Dialog zum Öffnen der Datei (wird von der Methode "saveFile()" aufgerufen
-    public static String getOpenFileDialog(java.awt.Frame f, String title, String defDir, String fileType) {
+    public static File getOpenFileDialog(java.awt.Frame f, String title, String defDir, String fileType) {
         java.awt.FileDialog fd = new java.awt.FileDialog(f, title, java.awt.FileDialog.LOAD);
         fd.setFile(fileType);
         fd.setDirectory(defDir);
@@ -165,7 +166,7 @@ public class MyUtilities {
         if( fd.getFile() == null ) {
             return null;
         } else {
-            return fd.getDirectory() + fd.getFile();
+            return new File(fd.getDirectory() + fd.getFile());
         }
     }
     

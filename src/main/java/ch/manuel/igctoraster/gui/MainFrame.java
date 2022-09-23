@@ -3,8 +3,13 @@
 
 package ch.manuel.igctoraster.gui;
 
+import ch.manuel.igctoraster.DataHandler;
+import ch.manuel.igctoraster.IGCprocessing;
 import ch.manuel.utilities.MyUtilities;
 import java.awt.Point;
+import java.io.File;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -137,9 +142,12 @@ public class MainFrame extends javax.swing.JFrame {
 
   private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
     // open file dialog
-    String path;
-    path = MyUtilities.getOpenFileDialog(this, "Open IGC-file", "Documents", "*.igc");
-    System.out.println(path);
+    File file;
+    file = MyUtilities.getOpenFileDialog(this, "Open IGC-file", "Documents", "*.igc");
+    
+    Logger.getLogger(IGCprocessing.class.getName()).log(Level.INFO, null, "Load file: " + file.getName());
+    DataHandler dHandler = new DataHandler( file );
+    dHandler.processSingleFile();
   }//GEN-LAST:event_jMenuItem2ActionPerformed
 
 
