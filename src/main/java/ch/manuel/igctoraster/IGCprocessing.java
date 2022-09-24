@@ -2,6 +2,7 @@
 // Datum: 22.09.2022
 package ch.manuel.igctoraster;
 
+import java.awt.Polygon;
 import java.awt.geom.Point2D;
 import java.io.BufferedReader;
 import java.io.File;
@@ -43,10 +44,23 @@ public class IGCprocessing {
   public List<Point2D.Double> getPointList() {
     return listLonLat;
   }
+  // return polygon from list
+  public Polygon getPolygon() {
+    int nb = listLonLat.size();
+     
+    int[] listPolyX = new int[nb];
+    int[] listPolyY = new int[nb];
+    // draw polygons
+    for (int i = 0; i < nb; i++) {
+      listPolyX[i] = (int) listLonLat.get(i).getX();
+      listPolyY[i] = (int) listLonLat.get(i).getY();
+    }
+    
+    return new Polygon(listPolyX, listPolyY, nb);
+  }
   
   public void processIGC() {
 
-    StringBuilder content = new StringBuilder();
     String line;
 
     try {
@@ -73,11 +87,8 @@ public class IGCprocessing {
           listLonLat.add( new Point2D.Double(x, y) );
         }
 
-//      content.append(line);
-//      content.append(System.lineSeparator());
       }
 
-//    return content.toString();
     } catch (IOException ex) {
       Logger.getLogger(IGCprocessing.class.getName()).log(Level.SEVERE, null, ex);
     }

@@ -134,7 +134,7 @@ public class MainFrame extends javax.swing.JFrame {
   }//GEN-LAST:event_jMenuItem1ActionPerformed
 
   private void graphicPanel1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_graphicPanel1MouseClicked
-    // get name of polygon
+    // click on panel
     Point p = new Point(evt.getX(), evt.getY());
     MainFrame.graphicPanel1.setNameOnClick(p);
     MainFrame.graphicPanel1.repaintPanel();
@@ -157,7 +157,7 @@ public class MainFrame extends javax.swing.JFrame {
   private static javax.swing.JMenu jMenu2;
   private static javax.swing.JMenuBar jMenuBar1;
   private static javax.swing.JMenuItem jMenuItem1;
-  private javax.swing.JMenuItem jMenuItem2;
+  private static javax.swing.JMenuItem jMenuItem2;
   private static javax.swing.JTextField jTextField1;
   // End of variables declaration//GEN-END:variables
 }

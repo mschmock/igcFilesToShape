@@ -27,9 +27,10 @@ public class GraphicPanel extends JPanel {
   private static GeoData geoData;
   // list polygons
   private static List<Polygon> listPoly;
+  private static Polygon igcTrack;
   // transformation
   private final AffineTransform tx;
-  private static final int pxBORDER = 16;                     // border in pixel
+  private static final int PX_BORDER = 16;                     // border in pixel
   private static Map<Integer, Municipality> mapID;             // map with id of municipalities
   // network
   private static Municipality selectedMunicip;
@@ -70,6 +71,11 @@ public class GraphicPanel extends JPanel {
       }
     }
   }
+  
+  // set up igc-track
+  public void setTrack(Polygon p) {
+    
+  }
 
   @Override
   protected void paintComponent(Graphics g) {
@@ -94,14 +100,14 @@ public class GraphicPanel extends JPanel {
     double wd = geoData.getWidth();
     double hg = geoData.getHeight();
 
-    double ratio1 = (this.getWidth() - (2 * pxBORDER)) / wd;
-    double ratio2 = (this.getHeight() - (2 * pxBORDER)) / hg;
+    double ratio1 = (this.getWidth() - (2 * PX_BORDER)) / wd;
+    double ratio2 = (this.getHeight() - (2 * PX_BORDER)) / hg;
     double scaleFact = (ratio1 < ratio2) ? ratio1 : ratio2;
 
     AffineTransform trans = AffineTransform.getTranslateInstance(-geoData.getBoundX(), -geoData.getBoundY());
     AffineTransform scale = AffineTransform.getScaleInstance(scaleFact, scaleFact);
     AffineTransform mirr_y = new AffineTransform(1, 0, 0, -1, 0, this.getHeight());
-    AffineTransform trans2 = AffineTransform.getTranslateInstance(pxBORDER, -pxBORDER);
+    AffineTransform trans2 = AffineTransform.getTranslateInstance(PX_BORDER, -PX_BORDER);
     tx.setToIdentity();
     tx.concatenate(trans2);
     tx.concatenate(mirr_y);
@@ -131,6 +137,11 @@ public class GraphicPanel extends JPanel {
       // fill polygon
       fillMunicip(g2, index, col);
     }
+  }
+  
+  // draw igc track
+  private void drawTrack(Graphics2D g2) {
+    
   }
 
   // fill polygon of municipality i
