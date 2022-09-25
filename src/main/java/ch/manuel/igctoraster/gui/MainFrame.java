@@ -42,6 +42,9 @@ public class MainFrame extends javax.swing.JFrame {
   public static void setStatusText(String str) {
     MainFrame.jTextField1.setText(str);
   }
+  public static void updateGraphicPanel() {
+    MainFrame.graphicPanel1.repaintPanel();
+  }
 
   /**
    * This method is called from within the constructor to initialize the form. WARNING: Do NOT

@@ -33,6 +33,7 @@ public class DataLoader {
   // files in resources
   private static final String dataXML = "/data/appData.xml";
   private static final String geoDataJSON = "/data/geodata.json";
+  private static final String lakesJSON = "/data/geodata_lakes.json";
 
   // xml
   private static Document appDataXML;
@@ -45,23 +46,26 @@ public class DataLoader {
   }
 
   public void loadData() {
-    boolean loadingOK = false;
+    boolean loadOK_1 = false;
+    boolean loadOK_2 = false;
 
     // load xml
     loadXML();
 
     // load JSON from resouces
     // file 1
-    Startup.dialog.addText("loading data from file: '" + geoDataJSON + "'");
-    loadingOK = this.loadJSON();               // Grenzen -> geodata.json
-    if (loadingOK) {
-      Startup.dialog.addText("\tOK\n");
+    Startup.dialog.addText("loading data from file: '" + geoDataJSON + "'\n");
+    loadOK_1 = this.loadJSON(geoDataJSON, false);            // Grenzen -> geodata.json
+    Startup.dialog.addText("loading data from file: '" + lakesJSON + "'\n");
+    loadOK_2 = this.loadJSON(lakesJSON, true);               // Lakes -> geodata.json
+    if (loadOK_1 && loadOK_2) {
+      Startup.dialog.addText("\t-> OK\n");
     } else {
-      Startup.dialog.addText("\tfailed\n");
+      Startup.dialog.addText("\t-> failed\n");
     }
 
     // preparing data
-    if (loadingOK) {
+    if (loadOK_1 && loadOK_2) {
       DataLoader.loadOK = true;
 
       // calculate bounds + distances
@@ -108,10 +112,10 @@ public class DataLoader {
   }
 
   // load JSON: geodata (Grenzen)
-  private boolean loadJSON() {
+  private boolean loadJSON(String pathJSON, boolean isLake) {
 
     // get File: geodata.json
-    InputStream in = getClass().getResourceAsStream(geoDataJSON);
+    InputStream in = getClass().getResourceAsStream(pathJSON);
 
     // JSON parser object to parse read file
     JSONParser jsonParser = new JSONParser();
@@ -136,14 +140,18 @@ public class DataLoader {
 
         // INSERT DATA
         String input;
+
+        // name AND create a new Municipality object
         geoData.addMunicip(attriObj.get("GMDNAME").toString());       // Gemeindename
+        // is a lake
+        GeoData.getLastElement().setIsLake(isLake);
         // ID -> in map 
         input = attriObj.get("GMDNR").toString();
         if (MyUtilities.isInteger(input)) {
           // setID --> map with [id, object]
           geoData.setID(Integer.parseInt(input), GeoData.getLastElement());
         } else {
-          errMsg = geoDataJSON + "\nFehler im Objekt " + idName + ", element: 'GMDNR'";
+          errMsg = pathJSON + "\nFehler im Objekt " + idName + ", element: 'GMDNR'";
           hasErr = true;
           break;
         }
@@ -152,7 +160,7 @@ public class DataLoader {
         if (MyUtilities.isInteger(input)) {
           GeoData.getLastElement().setCenterE(Integer.parseInt(input));
         } else {
-          errMsg = geoDataJSON + "\nFehler im Objekt " + idName + ", element: 'E_CNTR'";
+          errMsg = pathJSON + "\nFehler im Objekt " + idName + ", element: 'E_CNTR'";
           hasErr = true;
           break;
         }
@@ -161,7 +169,7 @@ public class DataLoader {
         if (MyUtilities.isInteger(input)) {
           GeoData.getLastElement().setCenterN(Integer.parseInt(input));
         } else {
-          errMsg = geoDataJSON + "\nFehler im Objekt " + idName + ", element: 'N_CNTR'";
+          errMsg = pathJSON + "\nFehler im Objekt " + idName + ", element: 'N_CNTR'";
           hasErr = true;
           break;
         }
@@ -170,7 +178,7 @@ public class DataLoader {
         if (MyUtilities.isInteger(input)) {
           GeoData.getLastElement().setMinN(Integer.parseInt(input));
         } else {
-          errMsg = geoDataJSON + "\nFehler im Objekt " + idName + ", element: 'N_MIN'";
+          errMsg = pathJSON + "\nFehler im Objekt " + idName + ", element: 'N_MIN'";
           hasErr = true;
           break;
         }
@@ -179,7 +187,7 @@ public class DataLoader {
         if (MyUtilities.isInteger(input)) {
           GeoData.getLastElement().setMaxN(Integer.parseInt(input));
         } else {
-          errMsg = geoDataJSON + "\nFehler im Objekt " + idName + ", element: 'N_MAX'";
+          errMsg = pathJSON + "\nFehler im Objekt " + idName + ", element: 'N_MAX'";
           hasErr = true;
           break;
         }
@@ -188,7 +196,7 @@ public class DataLoader {
         if (MyUtilities.isInteger(input)) {
           GeoData.getLastElement().setMinE(Integer.parseInt(input));
         } else {
-          errMsg = geoDataJSON + "\nFehler im Objekt " + idName + ", element: 'E_MIN'";
+          errMsg = pathJSON + "\nFehler im Objekt " + idName + ", element: 'E_MIN'";
           hasErr = true;
           break;
         }
@@ -197,13 +205,13 @@ public class DataLoader {
         if (MyUtilities.isInteger(input)) {
           GeoData.getLastElement().setMaxE(Integer.parseInt(input));
         } else {
-          errMsg = geoDataJSON + "\nFehler im Objekt " + idName + ", element: 'E_MAX'";
+          errMsg = pathJSON + "\nFehler im Objekt " + idName + ", element: 'E_MAX'";
           hasErr = true;
           break;
         }
         // Polygon Gemeindegrenze
         if (!GeoData.getLastElement().setPolygon(attriObj.get("POLYGON").toString())) {
-          errMsg = geoDataJSON + "\nFehler im Objekt " + idName + ", element: 'POLYGON'";
+          errMsg = pathJSON + "\nFehler im Objekt " + idName + ", element: 'POLYGON'";
           hasErr = true;
           break;
         }

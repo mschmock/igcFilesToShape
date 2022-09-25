@@ -1,6 +1,5 @@
 // Autor: Manuel Schmocker
 // Datum: 17.09.2022
-
 package ch.manuel.igctoraster.graphics;
 
 import ch.manuel.igctoraster.DataLoader;
@@ -15,6 +14,7 @@ import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Path2D;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,7 +27,8 @@ public class GraphicPanel extends JPanel {
   private static GeoData geoData;
   // list polygons
   private static List<Polygon> listPoly;
-  private static Polygon igcTrack;
+  private static List<Polygon> listPolyLakes;
+  private static Path2D.Double igcTrack;
   // transformation
   private final AffineTransform tx;
   private static final int PX_BORDER = 16;                     // border in pixel
@@ -35,13 +36,15 @@ public class GraphicPanel extends JPanel {
   // network
   private static Municipality selectedMunicip;
 
-  // Constructor
+  // CONSTRUCTOR
   public GraphicPanel() {
     super();
 
     // initialisation
+    igcTrack = null;
     listPoly = new ArrayList<>();
-    mapID = new HashMap<Integer, Municipality>();
+    listPolyLakes = new ArrayList<>();
+    mapID = new HashMap<>();
 
     // get polygons from geoData
     GraphicPanel.geoData = DataLoader.geoData;
@@ -68,13 +71,19 @@ public class GraphicPanel extends JPanel {
           // create map with municipalities
           mapID.put(listPoly.size() - 1, GeoData.getMunicip(i));
         }
+
+        //lakes
+        if (GeoData.getMunicip(i).getIsLake()) {
+          for (int j = 0; j < nb; j++) {
+            listPolyLakes.add(new Polygon(listPolyX.get(j),
+                    listPolyY.get(j),
+                    listPolyX.get(j).length)
+            );
+          }
+        }
+
       }
     }
-  }
-  
-  // set up igc-track
-  public void setTrack(Polygon p) {
-    
   }
 
   @Override
@@ -85,7 +94,10 @@ public class GraphicPanel extends JPanel {
     if (geoData != null) {
       // define transformation
       calcTransformation();
+      // draw polygons
+      drawLakes(g2);
       drawBorder(g2);
+      drawTrack(g2);
     }
   }
 
@@ -93,6 +105,11 @@ public class GraphicPanel extends JPanel {
   public void repaintPanel() {
     this.validate();
     this.repaint();
+  }
+
+  // set igc track
+  public static void setIgcTrack(Path2D.Double track) {
+    igcTrack = track;
   }
 
   // calculate transformation matrx (translation, scale, mirror...)
@@ -122,15 +139,24 @@ public class GraphicPanel extends JPanel {
     // draw Border
     g2.setStroke(new BasicStroke(1));
     g2.setColor(Color.black);
-    for (int i = 0; i < listPoly.size(); i++) {
-      Shape shape = this.tx.createTransformedShape(listPoly.get(i));
+    for (Polygon poly : listPoly) {
+      Shape shape = this.tx.createTransformedShape(poly);
       g2.draw(shape);
+    }
+  }
+
+  // draw filling lakes
+  private void drawLakes(Graphics2D g2) {
+    g2.setColor(Color.getHSBColor(0.541f, 0.7f, 1.0f));
+    for (Polygon lake : listPolyLakes) {
+      Shape shape = this.tx.createTransformedShape(lake);
+      g2.fill(shape);
     }
   }
 
   // draw on click
   private void drawFilling(Graphics2D g2) {
-    if ( GraphicPanel.selectedMunicip != null ) {
+    if (GraphicPanel.selectedMunicip != null) {
       // index of selected municip
       int index = GraphicPanel.selectedMunicip.getIndex();
       Color col = Color.getHSBColor(0.5f, 1.0f, 0.65f);
@@ -138,10 +164,16 @@ public class GraphicPanel extends JPanel {
       fillMunicip(g2, index, col);
     }
   }
-  
+
   // draw igc track
   private void drawTrack(Graphics2D g2) {
-    
+    if (GraphicPanel.igcTrack != null) {
+      // draw track
+      g2.setStroke(new BasicStroke(1));
+      g2.setColor(Color.red);
+      Shape shape = this.tx.createTransformedShape(igcTrack);
+      g2.draw(shape);
+    }
   }
 
   // fill polygon of municipality i

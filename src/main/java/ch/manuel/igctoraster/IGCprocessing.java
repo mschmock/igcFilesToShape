@@ -2,7 +2,9 @@
 // Datum: 22.09.2022
 package ch.manuel.igctoraster;
 
-import java.awt.Polygon;
+import ch.manuel.igctoraster.graphics.GraphicPanel;
+import ch.manuel.igctoraster.gui.MainFrame;
+import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.io.BufferedReader;
 import java.io.File;
@@ -21,6 +23,7 @@ public class IGCprocessing {
   // MEMBERVARIABLES
   private BufferedReader reader;
   private List<Point2D.Double> listLonLat;
+  private Path2D.Double igcTrack;
 
   // Regex
   private static final Pattern B_RECORD_RE = Pattern.compile("^B(\\d{6})(\\d{2})(\\d{5})([NS])(\\d{3})(\\d{5})([EW])([AV])(\\d{5})(\\d{5})");
@@ -30,8 +33,10 @@ public class IGCprocessing {
       group 5+6: longitude
       group 9+10: altitude
    */
+  // CONSTRUCTOR
   public IGCprocessing(File file) {
     listLonLat = new ArrayList<>();
+    igcTrack = new Path2D.Double();
 
     try {
       reader = new BufferedReader(new FileReader(file));
@@ -41,24 +46,15 @@ public class IGCprocessing {
   }
 
   // return list
-  public List<Point2D.Double> getPointList() {
+  public List<Point2D.Double> getPointListWGS84() {
     return listLonLat;
   }
+
   // return polygon from list
-  public Polygon getPolygon() {
-    int nb = listLonLat.size();
-     
-    int[] listPolyX = new int[nb];
-    int[] listPolyY = new int[nb];
-    // draw polygons
-    for (int i = 0; i < nb; i++) {
-      listPolyX[i] = (int) listLonLat.get(i).getX();
-      listPolyY[i] = (int) listLonLat.get(i).getY();
-    }
-    
-    return new Polygon(listPolyX, listPolyY, nb);
+  public Path2D.Double getPolygonLV95() {
+    return igcTrack;
   }
-  
+
   public void processIGC() {
 
     String line;
@@ -70,7 +66,6 @@ public class IGCprocessing {
         Matcher ma = B_RECORD_RE.matcher(line);
 
         if (ma.find()) {
-
           // S + N         
           double y = Integer.parseInt(ma.group(2), 10) + Integer.parseInt(ma.group(3), 10) / 60000.0;
           if (ma.group(4).compareTo("S") == 0) {
@@ -81,17 +76,34 @@ public class IGCprocessing {
           if (ma.group(7).compareTo("W") == 0) {
             x = -x;
           }
-          // store in list 
-          // in swiss projection LV95
-          Point2D.Double pt = wgs84ToLV95(new Point2D.Double(x, y) );
-          listLonLat.add( new Point2D.Double(x, y) );
+          // store in list (wgs84)
+          listLonLat.add(new Point2D.Double(x, y));
         }
-
       }
-
     } catch (IOException ex) {
       Logger.getLogger(IGCprocessing.class.getName()).log(Level.SEVERE, null, ex);
     }
+    // create polygon (LV95)
+    createPolygon();
+  }
+
+  // add Polygon to GraphicPanel
+  public void showPolygonOnPanel() {
+    GraphicPanel.setIgcTrack(igcTrack);
+    MainFrame.updateGraphicPanel();
+  }
+
+  // create Polygon
+  private void createPolygon() {
+    // first point
+    Point2D.Double p = wgs84ToLV95(listLonLat.get(0)); // Transform to LV95
+    igcTrack.moveTo(p.getX(), p.getY());
+
+    for (Point2D.Double p0 : listLonLat) {
+      p = wgs84ToLV95( p0); // Transform to LV95
+      igcTrack.lineTo(p.getX(), p.getY());
+    }
+
   }
 
   // Transformation of ellipsoidal WGS84 coordinates to Swiss projection coordinates

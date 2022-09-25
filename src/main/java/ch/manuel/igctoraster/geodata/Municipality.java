@@ -20,6 +20,7 @@ public class Municipality {
     private int maxN;                           // Umgrenzung: max Koordinate LV 95 N
     private int minE;                           // Umgrenzung: min Koordinate LV 95 E
     private int maxE;                           // Umgrenzung: max Koordinate LV 95 E
+    private boolean isLake;                     // Polygon is a lake
     // Gemeindegrenzen
     private List<int[]> polyX;                  // Polygone Gemeindegrenze, X-Werte
     private List<int[]> polyY;                  // Polygone Gemeindegrenze, Y-Werte
@@ -61,6 +62,9 @@ public class Municipality {
     }
     public void setMaxE(int maxE) {
         this.maxE = maxE;
+    }
+    public void setIsLake(boolean isLake) {
+      this.isLake = isLake;
     }
     
     public boolean setPolygon(String polygon) {
@@ -191,6 +195,8 @@ public class Municipality {
     public List<int[]> getPolyY() {
         return this.polyY;
     }
-
+    public boolean getIsLake() {
+      return this.isLake;
+    }
     
 }
