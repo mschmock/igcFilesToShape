@@ -32,11 +32,11 @@ public class IGCdataTest {
     testProc.processIGC();
     
     // test first line in file
-    double ptX1 = testProc.getPointList().get(0).getX();
+    double ptX1 = testProc.getPointListWGS84().get(0).getX();
     double degX1 = 7.0;
     double minX1 = 50.728 / 60.0;
     Assert.assertEquals(degX1 + minX1, ptX1, 0.00001);
-    double ptY1 = testProc.getPointList().get(0).getY();
+    double ptY1 = testProc.getPointListWGS84().get(0).getY();
     double degY1 = 46.0;
     double minY1 = 41.681 / 60.0;
     Assert.assertEquals(degY1 + minY1, ptY1, 0.00001);
