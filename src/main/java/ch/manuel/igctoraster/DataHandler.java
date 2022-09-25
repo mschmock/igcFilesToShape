@@ -2,9 +2,14 @@
 // Datum: 22.09.2022
 package ch.manuel.igctoraster;
 
+import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 
 public class DataHandler {
 
@@ -37,6 +42,8 @@ public class DataHandler {
     igcProcess.processIGC();
     igcProcess.showPolygonOnPanel();
     this.rasterizeTrack();
+    this.checkRaster();
+    this.createImage();
   }
 
   public void processFiles() {
@@ -50,22 +57,55 @@ public class DataHandler {
     for (Point2D.Double p0 : igcProcess.getPointListWGS84()) {
       Point2D.Double pt = IGCprocessing.wgs84ToLV95(p0);
 
-      indX = Math.floorDiv(X_MIN - (int) pt.getX(), CELL_SIZE);
-      indY = Math.floorDiv(Y_MIN - (int) pt.getY(), CELL_SIZE);
+      indX = Math.floorDiv((int) pt.getX() - X_MIN, CELL_SIZE);
+      indY = Math.floorDiv((int) pt.getY() - Y_MIN, CELL_SIZE);
 
       if ((indX >= 0 && indX < nbElemX) && (indY >= 0 && indY < nbElemY)) {
         raster[indX][indY] = true;
+//        System.out.println("Set index: " + indX + ", " + indY);
       }
-      
     }
+
   }
 
   // create image
   private void createImage() {
     BufferedImage image;
-    image = new BufferedImage(nbElemX, nbElemY, BufferedImage.TYPE_INT_ARGB);
-    
-    
+    image = new BufferedImage(nbElemX, nbElemY, BufferedImage.TYPE_BYTE_BINARY);
+    int col;
+
+    for (int i = 0; i < nbElemX; i++) {
+      for (int j = 0; j < nbElemY; j++) {
+        if (raster[i][nbElemY-j-1]) {
+          col = Color.black.getRGB();
+        } else {
+          col = Color.white.getRGB();
+        }
+        image.setRGB(i, j, col);
+      }
+    }
+
+    File imageFile = new File("D:\\tmp\\img.png");
+    try {
+      ImageIO.write(image, "png", imageFile);
+    } catch (IOException ex) {
+      Logger.getLogger(DataHandler.class.getName()).log(Level.SEVERE, null, ex);
+    }
+
   }
-  
+
+  // test
+  private void checkRaster() {
+    int count = 0;
+
+    for (int i = 0; i < nbElemX; i++) {
+      for (int j = 0; j < nbElemY; j++) {
+        if (raster[i][j]) {
+          count++;
+        }
+      }
+    }
+    System.out.println("Nb of activ cells: " + count);
+  }
+
 }
