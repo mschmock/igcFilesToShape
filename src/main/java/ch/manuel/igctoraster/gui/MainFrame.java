@@ -10,6 +10,8 @@ import java.awt.Point;
 import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
  *
@@ -18,7 +20,7 @@ import java.util.logging.Logger;
 public class MainFrame extends javax.swing.JFrame {
 
   public static InfoForm infoForm;
-
+  private static DataHandler dHandler;
   /**
    * Creates new form MainFrame
    */
@@ -45,6 +47,9 @@ public class MainFrame extends javax.swing.JFrame {
   public static void updateGraphicPanel() {
     MainFrame.graphicPanel1.repaintPanel();
   }
+  public static void setMenuSaveActive() {
+    MainFrame.jMenuItem3.setEnabled(true);
+  }
 
   /**
    * This method is called from within the constructor to initialize the form. WARNING: Do NOT
@@ -59,6 +64,7 @@ public class MainFrame extends javax.swing.JFrame {
     jMenuBar1 = new javax.swing.JMenuBar();
     jMenu1 = new javax.swing.JMenu();
     jMenuItem2 = new javax.swing.JMenuItem();
+    jMenuItem3 = new javax.swing.JMenuItem();
     jMenu2 = new javax.swing.JMenu();
     jMenuItem1 = new javax.swing.JMenuItem();
 
@@ -93,13 +99,22 @@ public class MainFrame extends javax.swing.JFrame {
 
     jMenu1.setText("File");
 
-    jMenuItem2.setText("open IGC");
+    jMenuItem2.setText("Open IGC");
     jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         jMenuItem2ActionPerformed(evt);
       }
     });
     jMenu1.add(jMenuItem2);
+
+    jMenuItem3.setText("Save geoTiff");
+    jMenuItem3.setEnabled(false);
+    jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        jMenuItem3ActionPerformed(evt);
+      }
+    });
+    jMenu1.add(jMenuItem3);
 
     jMenuBar1.add(jMenu1);
 
@@ -146,12 +161,24 @@ public class MainFrame extends javax.swing.JFrame {
   private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
     // open file dialog
     File file;
-    file = MyUtilities.getOpenFileDialog(this, "Open IGC-file", "Documents", "*.igc");
-    
-    Logger.getLogger(IGCprocessing.class.getName()).log(Level.INFO, null, "Load file: " + file.getName());
-    DataHandler dHandler = new DataHandler( file );
-    dHandler.processSingleFile();
+    FileFilter filter = new FileNameExtensionFilter("IGC files", "igc");
+    file = MyUtilities.getOpenFileDialog("Open IGC-File", filter);
+    if(file != null) {
+      Logger.getLogger(IGCprocessing.class.getName()).log(Level.INFO, "Load file: " + file.getName());
+      dHandler = new DataHandler( file );
+      dHandler.processSingleFile();
+    } else {
+      Logger.getLogger(IGCprocessing.class.getName()).log(Level.INFO, "No file...");
+    }
   }//GEN-LAST:event_jMenuItem2ActionPerformed
+
+  private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
+    // open save dialog
+    File file;
+    FileFilter filter = new FileNameExtensionFilter("IGC files", "igc");
+    file = MyUtilities.getSaveFileDialog("Save Tiff", filter, "image.png");
+    dHandler.saveImage(file);
+  }//GEN-LAST:event_jMenuItem3ActionPerformed
 
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -161,6 +188,7 @@ public class MainFrame extends javax.swing.JFrame {
   private static javax.swing.JMenuBar jMenuBar1;
   private static javax.swing.JMenuItem jMenuItem1;
   private static javax.swing.JMenuItem jMenuItem2;
+  private static javax.swing.JMenuItem jMenuItem3;
   private static javax.swing.JTextField jTextField1;
   // End of variables declaration//GEN-END:variables
 }

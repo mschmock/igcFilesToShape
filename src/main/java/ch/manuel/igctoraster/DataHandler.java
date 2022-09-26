@@ -2,6 +2,7 @@
 // Datum: 22.09.2022
 package ch.manuel.igctoraster;
 
+import ch.manuel.igctoraster.gui.MainFrame;
 import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
@@ -17,6 +18,7 @@ public class DataHandler {
   private File file;
   private IGCprocessing igcProcess;
   private boolean[][] raster;
+  private BufferedImage image;
 
   // raster data
   private static final int X_MIN = 2450000;   // LV95: x Min
@@ -68,15 +70,26 @@ public class DataHandler {
 
   }
 
+  // save file
+  public void saveImage(File file) {
+    if (file != null) {
+      try {
+        Logger.getLogger(DataHandler.class.getName()).log(Level.INFO, "Save to file '" + file + "'");
+        ImageIO.write(image, "png", file);
+      } catch (IOException ex) {
+        Logger.getLogger(DataHandler.class.getName()).log(Level.SEVERE, null, ex);
+      }
+    }
+  }
+
   // create image
   private void createImage() {
-    BufferedImage image;
     image = new BufferedImage(nbElemX, nbElemY, BufferedImage.TYPE_BYTE_BINARY);
     int col;
 
     for (int i = 0; i < nbElemX; i++) {
       for (int j = 0; j < nbElemY; j++) {
-        if (raster[i][nbElemY-j-1]) {
+        if (raster[i][nbElemY - j - 1]) {
           col = Color.black.getRGB();
         } else {
           col = Color.white.getRGB();
@@ -84,14 +97,8 @@ public class DataHandler {
         image.setRGB(i, j, col);
       }
     }
-
-    File imageFile = new File("D:\\tmp\\img.png");
-    try {
-      ImageIO.write(image, "png", imageFile);
-    } catch (IOException ex) {
-      Logger.getLogger(DataHandler.class.getName()).log(Level.SEVERE, null, ex);
-    }
-
+    // image now available
+    MainFrame.setMenuSaveActive();
   }
 
   // test
