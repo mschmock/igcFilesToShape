@@ -1,6 +1,5 @@
 // Autor: Manuel Schmocker
 // Datum: 17.09.2022
-
 package ch.manuel.igctoraster.gui;
 
 import ch.manuel.igctoraster.DataHandler;
@@ -21,12 +20,17 @@ public class MainFrame extends javax.swing.JFrame {
 
   public static InfoForm infoForm;
   private static DataHandler dHandler;
+  private static Point ptClicked;
+  private static Point ptDragged;
+
   /**
    * Creates new form MainFrame
    */
   public MainFrame() {
     initComponents();
     initFrames();
+    
+    ptClicked = null;
   }
 
   /**
@@ -44,9 +48,11 @@ public class MainFrame extends javax.swing.JFrame {
   public static void setStatusText(String str) {
     MainFrame.jTextField1.setText(str);
   }
+
   public static void updateGraphicPanel() {
     MainFrame.graphicPanel1.repaintPanel();
   }
+
   public static void setMenuSaveActive() {
     MainFrame.jMenuItem3.setEnabled(true);
   }
@@ -70,9 +76,22 @@ public class MainFrame extends javax.swing.JFrame {
 
     setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
+    graphicPanel1.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+      public void mouseDragged(java.awt.event.MouseEvent evt) {
+        graphicPanel1MouseDragged(evt);
+      }
+    });
+    graphicPanel1.addMouseWheelListener(new java.awt.event.MouseWheelListener() {
+      public void mouseWheelMoved(java.awt.event.MouseWheelEvent evt) {
+        graphicPanel1MouseWheelMoved(evt);
+      }
+    });
     graphicPanel1.addMouseListener(new java.awt.event.MouseAdapter() {
       public void mouseClicked(java.awt.event.MouseEvent evt) {
         graphicPanel1MouseClicked(evt);
+      }
+      public void mouseReleased(java.awt.event.MouseEvent evt) {
+        graphicPanel1MouseReleased(evt);
       }
     });
 
@@ -163,9 +182,9 @@ public class MainFrame extends javax.swing.JFrame {
     File file;
     FileFilter filter = new FileNameExtensionFilter("IGC files", "igc");
     file = MyUtilities.getOpenFileDialog("Open IGC-File", filter);
-    if(file != null) {
+    if (file != null) {
       Logger.getLogger(IGCprocessing.class.getName()).log(Level.INFO, "Load file: " + file.getName());
-      dHandler = new DataHandler( file );
+      dHandler = new DataHandler(file);
       dHandler.processSingleFile();
     } else {
       Logger.getLogger(IGCprocessing.class.getName()).log(Level.INFO, "No file...");
@@ -179,6 +198,30 @@ public class MainFrame extends javax.swing.JFrame {
     file = MyUtilities.getSaveFileDialog("Save Tiff", filter, "image.png");
     dHandler.saveImage(file);
   }//GEN-LAST:event_jMenuItem3ActionPerformed
+
+  private void graphicPanel1MouseWheelMoved(java.awt.event.MouseWheelEvent evt) {//GEN-FIRST:event_graphicPanel1MouseWheelMoved
+    // zoom
+    Point p = new Point(evt.getX(), evt.getY());
+    if (evt.getWheelRotation() < 0) {
+      Logger.getLogger(MainFrame.class.getName()).log(Level.INFO, "zoom in" + p.toString());
+      MainFrame.graphicPanel1.zoomIn(p);
+    } else if (evt.getWheelRotation() > 0) {
+      Logger.getLogger(MainFrame.class.getName()).log(Level.INFO, "zoom in" + p.toString());
+      MainFrame.graphicPanel1.zoomOut(p);
+    }
+  }//GEN-LAST:event_graphicPanel1MouseWheelMoved
+
+  private void graphicPanel1MouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_graphicPanel1MouseDragged
+    if(ptClicked == null) {
+      ptClicked = new Point(evt.getX(), evt.getY());
+    }
+    ptDragged = new Point(evt.getX() - (int) ptClicked.getX(), evt.getY() - (int) ptClicked.getY());
+  }//GEN-LAST:event_graphicPanel1MouseDragged
+
+  private void graphicPanel1MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_graphicPanel1MouseReleased
+    MainFrame.graphicPanel1.dragMap(ptDragged);
+    ptClicked = null;
+  }//GEN-LAST:event_graphicPanel1MouseReleased
 
 
   // Variables declaration - do not modify//GEN-BEGIN:variables

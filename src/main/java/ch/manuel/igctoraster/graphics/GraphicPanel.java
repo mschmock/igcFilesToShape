@@ -30,7 +30,9 @@ public class GraphicPanel extends JPanel {
   private static List<Polygon> listPolyLakes;
   private static Path2D.Double igcTrack;
   // transformation
-  private final AffineTransform tx;
+  private static AffineTransform tx;
+  private static float zoom;
+  private static Point drag;
   private static final int PX_BORDER = 16;                     // border in pixel
   private static Map<Integer, Municipality> mapID;             // map with id of municipalities
   // network
@@ -51,8 +53,9 @@ public class GraphicPanel extends JPanel {
     initPolygons();
 
     // init transformation
-    this.tx = new AffineTransform();
-
+    tx = new AffineTransform();
+    zoom = 1.0f;
+    drag = new Point(0, 0);
   }
 
   // initalisation of polygons (border municipalites)
@@ -125,11 +128,26 @@ public class GraphicPanel extends JPanel {
     AffineTransform scale = AffineTransform.getScaleInstance(scaleFact, scaleFact);
     AffineTransform mirr_y = new AffineTransform(1, 0, 0, -1, 0, this.getHeight());
     AffineTransform trans2 = AffineTransform.getTranslateInstance(PX_BORDER, -PX_BORDER);
+    // zoom
+    AffineTransform trans3a = AffineTransform.getTranslateInstance(-this.getWidth() / 2, -this.getHeight() / 2);
+    AffineTransform scale3 = AffineTransform.getScaleInstance(zoom, zoom);
+    AffineTransform trans3b = AffineTransform.getTranslateInstance(+this.getWidth() / 2, +this.getHeight() / 2);
+    // drag
+    AffineTransform trans4 = AffineTransform.getTranslateInstance(drag.getX(), drag.getY());
+    
     tx.setToIdentity();
+    // drag
+    tx.concatenate(trans4);
+    // zoom
+    tx.concatenate(trans3b);
+    tx.concatenate(scale3);
+    tx.concatenate(trans3a);
+    // inital transformation
     tx.concatenate(trans2);
     tx.concatenate(mirr_y);
     tx.concatenate(scale);
     tx.concatenate(trans);
+
   }
 
   // draw Border
@@ -140,7 +158,7 @@ public class GraphicPanel extends JPanel {
     g2.setStroke(new BasicStroke(1));
     g2.setColor(Color.black);
     for (Polygon poly : listPoly) {
-      Shape shape = this.tx.createTransformedShape(poly);
+      Shape shape = GraphicPanel.tx.createTransformedShape(poly);
       g2.draw(shape);
     }
   }
@@ -149,7 +167,7 @@ public class GraphicPanel extends JPanel {
   private void drawLakes(Graphics2D g2) {
     g2.setColor(Color.getHSBColor(0.541f, 0.7f, 1.0f));
     for (Polygon lake : listPolyLakes) {
-      Shape shape = this.tx.createTransformedShape(lake);
+      Shape shape = GraphicPanel.tx.createTransformedShape(lake);
       g2.fill(shape);
     }
   }
@@ -171,7 +189,7 @@ public class GraphicPanel extends JPanel {
       // draw track
       g2.setStroke(new BasicStroke(1));
       g2.setColor(Color.red);
-      Shape shape = this.tx.createTransformedShape(igcTrack);
+      Shape shape = GraphicPanel.tx.createTransformedShape(igcTrack);
       g2.draw(shape);
     }
   }
@@ -188,7 +206,7 @@ public class GraphicPanel extends JPanel {
 
     // draw polygons
     for (int j = 0; j < nb; j++) {
-      Shape shape = this.tx.createTransformedShape(
+      Shape shape = GraphicPanel.tx.createTransformedShape(
               new Polygon(listPolyX.get(j),
                       listPolyY.get(j),
                       listPolyX.get(j).length));
@@ -199,7 +217,7 @@ public class GraphicPanel extends JPanel {
   // set index / name for element with click
   public void setNameOnClick(Point p) {
     for (int i = 0; i < listPoly.size(); i++) {
-      Shape shape = this.tx.createTransformedShape(listPoly.get(i));
+      Shape shape = GraphicPanel.tx.createTransformedShape(listPoly.get(i));
       if (shape.contains(p)) {
         GraphicPanel.selectedMunicip = GraphicPanel.mapID.get(i);
         MainFrame.setStatusText("Selected: " + GraphicPanel.mapID.get(i).getName());
@@ -208,8 +226,19 @@ public class GraphicPanel extends JPanel {
     }
   }
 
-  // vue changed
-  public static void viewChanged() {
-    //legend.resetMaxVal();
+  public void zoomIn(Point p) {
+    zoom = zoom * 1.2f;
+    repaintPanel();
   }
+
+  public void zoomOut(Point p) {
+    zoom = zoom / 1.2f;
+    repaintPanel();
+  }
+
+  public void dragMap(Point p) {
+    drag = new Point((int) (p.getX() - drag.getX()), (int) (p.getY() - drag.getY()));
+    repaintPanel();
+  }
+
 }
