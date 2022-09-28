@@ -237,7 +237,13 @@ public class GraphicPanel extends JPanel {
   }
 
   public void dragMap(Point p) {
-    drag = new Point((int) (p.getX() - drag.getX()), (int) (p.getY() - drag.getY()));
+    drag = new Point((int) (p.getX() + drag.getX()), (int) (p.getY() + drag.getY()));
+    repaintPanel();
+  }
+  
+  public void resetView() {
+    zoom = 1.0f;
+    drag = new Point(0,0);
     repaintPanel();
   }
 

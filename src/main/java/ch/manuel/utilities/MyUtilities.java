@@ -193,6 +193,20 @@ public class MyUtilities {
     return selectedFile;
   }
 
+  // select folder
+  public static File getSelectFolderDialog(String title) {
+    File selectedFile = null;
+    JFileChooser jfc = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
+    jfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+    jfc.setDialogTitle(title);
+
+    int returnValue = jfc.showOpenDialog(null);
+    if (returnValue == JFileChooser.APPROVE_OPTION) {
+      selectedFile = jfc.getSelectedFile();
+    }
+    return selectedFile;
+  }
+
   //Nachricht anzeigen: Titel + Warning icon
   private static void getMessage(String text1, String text2) {
     JOptionPane.showMessageDialog(null, text1, text2, JOptionPane.WARNING_MESSAGE);

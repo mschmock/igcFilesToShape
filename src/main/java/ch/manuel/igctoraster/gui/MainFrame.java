@@ -29,7 +29,7 @@ public class MainFrame extends javax.swing.JFrame {
   public MainFrame() {
     initComponents();
     initFrames();
-    
+
     ptClicked = null;
   }
 
@@ -70,7 +70,10 @@ public class MainFrame extends javax.swing.JFrame {
     jMenuBar1 = new javax.swing.JMenuBar();
     jMenu1 = new javax.swing.JMenu();
     jMenuItem2 = new javax.swing.JMenuItem();
+    jMenuItem5 = new javax.swing.JMenuItem();
     jMenuItem3 = new javax.swing.JMenuItem();
+    jMenu3 = new javax.swing.JMenu();
+    jMenuItem4 = new javax.swing.JMenuItem();
     jMenu2 = new javax.swing.JMenu();
     jMenuItem1 = new javax.swing.JMenuItem();
 
@@ -126,6 +129,14 @@ public class MainFrame extends javax.swing.JFrame {
     });
     jMenu1.add(jMenuItem2);
 
+    jMenuItem5.setText("Open IGC (multiple)");
+    jMenuItem5.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        jMenuItem5ActionPerformed(evt);
+      }
+    });
+    jMenu1.add(jMenuItem5);
+
     jMenuItem3.setText("Save geoTiff");
     jMenuItem3.setEnabled(false);
     jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
@@ -136,6 +147,18 @@ public class MainFrame extends javax.swing.JFrame {
     jMenu1.add(jMenuItem3);
 
     jMenuBar1.add(jMenu1);
+
+    jMenu3.setText("View");
+
+    jMenuItem4.setText("Reset view");
+    jMenuItem4.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        jMenuItem4ActionPerformed(evt);
+      }
+    });
+    jMenu3.add(jMenuItem4);
+
+    jMenuBar1.add(jMenu3);
 
     jMenu2.setText("Info");
 
@@ -183,11 +206,11 @@ public class MainFrame extends javax.swing.JFrame {
     FileFilter filter = new FileNameExtensionFilter("IGC files", "igc");
     file = MyUtilities.getOpenFileDialog("Open IGC-File", filter);
     if (file != null) {
-      Logger.getLogger(IGCprocessing.class.getName()).log(Level.INFO, "Load file: " + file.getName());
+      Logger.getLogger(MainFrame.class.getName()).log(Level.INFO, "Load file: " + file.getName());
       dHandler = new DataHandler(file);
       dHandler.processSingleFile();
     } else {
-      Logger.getLogger(IGCprocessing.class.getName()).log(Level.INFO, "No file...");
+      Logger.getLogger(MainFrame.class.getName()).log(Level.INFO, "No file...");
     }
   }//GEN-LAST:event_jMenuItem2ActionPerformed
 
@@ -206,16 +229,18 @@ public class MainFrame extends javax.swing.JFrame {
       Logger.getLogger(MainFrame.class.getName()).log(Level.INFO, "zoom in" + p.toString());
       MainFrame.graphicPanel1.zoomIn(p);
     } else if (evt.getWheelRotation() > 0) {
-      Logger.getLogger(MainFrame.class.getName()).log(Level.INFO, "zoom in" + p.toString());
+      Logger.getLogger(MainFrame.class.getName()).log(Level.INFO, "zoom out" + p.toString());
       MainFrame.graphicPanel1.zoomOut(p);
     }
   }//GEN-LAST:event_graphicPanel1MouseWheelMoved
 
   private void graphicPanel1MouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_graphicPanel1MouseDragged
-    if(ptClicked == null) {
+    if (ptClicked == null) {
       ptClicked = new Point(evt.getX(), evt.getY());
     }
     ptDragged = new Point(evt.getX() - (int) ptClicked.getX(), evt.getY() - (int) ptClicked.getY());
+    System.out.println("Clicked: " + ptClicked.toString());
+    System.out.println("Dragged: " + ptDragged.toString());
   }//GEN-LAST:event_graphicPanel1MouseDragged
 
   private void graphicPanel1MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_graphicPanel1MouseReleased
@@ -223,15 +248,35 @@ public class MainFrame extends javax.swing.JFrame {
     ptClicked = null;
   }//GEN-LAST:event_graphicPanel1MouseReleased
 
+  private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
+    MainFrame.graphicPanel1.resetView();
+  }//GEN-LAST:event_jMenuItem4ActionPerformed
+
+  private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem5ActionPerformed
+    // open file dialog
+    File file;
+    file = MyUtilities.getSelectFolderDialog("Select folder");
+    if (file != null) {
+      Logger.getLogger(MainFrame.class.getName()).log(Level.INFO, "Open folder: " + file.getName());
+      dHandler = new DataHandler(file);
+      dHandler.processFiles();
+    } else {
+      Logger.getLogger(MainFrame.class.getName()).log(Level.INFO, "No file...");
+    }
+  }//GEN-LAST:event_jMenuItem5ActionPerformed
+
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
   private static ch.manuel.igctoraster.graphics.GraphicPanel graphicPanel1;
   private static javax.swing.JMenu jMenu1;
   private static javax.swing.JMenu jMenu2;
+  private static javax.swing.JMenu jMenu3;
   private static javax.swing.JMenuBar jMenuBar1;
   private static javax.swing.JMenuItem jMenuItem1;
   private static javax.swing.JMenuItem jMenuItem2;
   private static javax.swing.JMenuItem jMenuItem3;
+  private static javax.swing.JMenuItem jMenuItem4;
+  private static javax.swing.JMenuItem jMenuItem5;
   private static javax.swing.JTextField jTextField1;
   // End of variables declaration//GEN-END:variables
 }
