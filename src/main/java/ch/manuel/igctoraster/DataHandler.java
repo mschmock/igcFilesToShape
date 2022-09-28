@@ -8,8 +8,13 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.imageio.ImageIO;
 
 public class DataHandler {
@@ -49,7 +54,14 @@ public class DataHandler {
   }
 
   public void processFiles() {
+    List<String> listFiles = null;
 
+    try {
+      listFiles = findFiles(file.toPath(), ".igc");
+    } catch (IOException ex) {
+      Logger.getLogger(DataHandler.class.getName()).log(Level.SEVERE, null, ex);
+    }
+    Logger.getLogger(DataHandler.class.getName()).log(Level.INFO, listFiles.toString());
   }
 
   private void rasterizeTrack() {
@@ -99,6 +111,27 @@ public class DataHandler {
     }
     // image now available
     MainFrame.setMenuSaveActive();
+  }
+
+  public static List<String> findFiles(Path path, String fileExtension) throws IOException {
+
+    if (!Files.isDirectory(path)) {
+      throw new IllegalArgumentException("Path must be a directory!");
+    }
+
+    List<String> result;
+
+    try ( Stream<Path> walk = Files.walk(path)) {
+      result = walk
+              .filter(p -> !Files.isDirectory(p))
+              // this is a path, not string, this only test if path end with a certain path
+              //.filter(p -> p.endsWith(fileExtension)) convert path to string first
+              .map(p -> p.toString().toLowerCase())
+              .filter(f -> f.endsWith(fileExtension))
+              .collect(Collectors.toList());
+    }
+
+    return result;
   }
 
   // test
