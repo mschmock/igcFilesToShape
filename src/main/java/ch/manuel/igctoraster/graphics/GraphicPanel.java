@@ -15,6 +15,7 @@ import java.awt.Polygon;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,6 +38,8 @@ public class GraphicPanel extends JPanel {
   private static Map<Integer, Municipality> mapID;             // map with id of municipalities
   // network
   private static Municipality selectedMunicip;
+  // background
+  private static BufferedImage image;
 
   // CONSTRUCTOR
   public GraphicPanel() {
@@ -47,6 +50,7 @@ public class GraphicPanel extends JPanel {
     listPoly = new ArrayList<>();
     listPolyLakes = new ArrayList<>();
     mapID = new HashMap<>();
+    image = null;
 
     // get polygons from geoData
     GraphicPanel.geoData = DataLoader.geoData;
@@ -92,8 +96,12 @@ public class GraphicPanel extends JPanel {
   @Override
   protected void paintComponent(Graphics g) {
     super.paintComponent(g);
+    // draw background, if set
+    if (image != null) {
+      g.drawImage(image, 0, 0, this.getWidth(), this.getHeight(), this);
+    }
+    
     Graphics2D g2 = (Graphics2D) g;
-
     if (geoData != null) {
       // define transformation
       calcTransformation();
@@ -110,9 +118,14 @@ public class GraphicPanel extends JPanel {
     this.repaint();
   }
 
+  // set img background
+  public static void setImg(BufferedImage image) {
+    GraphicPanel.image = image;
+  }
+
   // set igc track
   public static void setIgcTrack(Path2D.Double track) {
-    igcTrack = track;
+    GraphicPanel.igcTrack = track;
   }
 
   // calculate transformation matrx (translation, scale, mirror...)
@@ -134,7 +147,7 @@ public class GraphicPanel extends JPanel {
     AffineTransform trans3b = AffineTransform.getTranslateInstance(+this.getWidth() / 2, +this.getHeight() / 2);
     // drag
     AffineTransform trans4 = AffineTransform.getTranslateInstance(drag.getX(), drag.getY());
-    
+
     tx.setToIdentity();
     // drag
     tx.concatenate(trans4);
@@ -240,10 +253,10 @@ public class GraphicPanel extends JPanel {
     drag = new Point((int) (p.getX() + drag.getX()), (int) (p.getY() + drag.getY()));
     repaintPanel();
   }
-  
+
   public void resetView() {
     zoom = 1.0f;
-    drag = new Point(0,0);
+    drag = new Point(0, 0);
     repaintPanel();
   }
 

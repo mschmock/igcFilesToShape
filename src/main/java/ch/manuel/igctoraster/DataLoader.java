@@ -38,7 +38,8 @@ public class DataLoader {
   // xml
   private static Document appDataXML;
 
-  //Konstruktor
+  
+  // CONSTRUCTOR
   public DataLoader() {
     // Create container for geodata
     DataLoader.geoData = new GeoData();

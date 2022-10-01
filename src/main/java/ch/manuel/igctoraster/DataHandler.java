@@ -2,15 +2,13 @@
 // Datum: 22.09.2022
 package ch.manuel.igctoraster;
 
+import ch.manuel.igctoraster.graphics.GraphicPanel;
 import ch.manuel.igctoraster.gui.MainFrame;
-import java.awt.Color;
-import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,44 +21,28 @@ public class DataHandler {
   // MEMBERVARIABLES
   private File file;
   private IGCprocessing igcProcess;
-  private boolean[][] raster;
-  private List<boolean[][]> listRaster;
-  private int[][] sum;
-  private int maxVal;
-  private BufferedImage imageBinary;
-  private BufferedImage image;
-
-  // raster data
-  private static final int X_MIN = 2450000;   // LV95: x Min
-  private static final int Y_MIN = 1050000;   // LV95: y Min
-  private static final int X_MAX = 2850000;   // LV95: x Max
-  private static final int Y_MAX = 1310000;   // LV95: y Max
-  private static final int CELL_SIZE = 500;   // in Meter
-  private static int nbElemX;
-  private static int nbElemY;
+  private RasterData rData;
+  private BufferedImage imageRaster;
 
   // CONSTRUCTOR
   public DataHandler(File file) {
     this.file = file;
-
-    nbElemX = Math.floorDiv(X_MAX - X_MIN, CELL_SIZE);
-    nbElemY = Math.floorDiv(Y_MAX - Y_MIN, CELL_SIZE);
-
-    raster = new boolean[nbElemX][nbElemY];
-    listRaster = new ArrayList<>();
-    sum = new int[nbElemX][nbElemY];
-    maxVal = 0;
+    rData = new RasterData(1000);    // create raster with cell size of 500 m
   }
 
+  // process a single igc file
   public void processSingleFile() {
     igcProcess = new IGCprocessing(file);
     igcProcess.processIGC();
     igcProcess.showPolygonOnPanel();
-    this.rasterizeTrack();
-    this.checkRaster();
-    this.createImageFromBool();
+    // get pointList from igc data
+    rData.rasterizeTrack(igcProcess.getPointListWGS84());
+    imageRaster = rData.createImageFromBool();
+    // image now available
+    MainFrame.setMenuSaveActive();
   }
 
+  // process a list with files
   public void processFiles() {
     List<String> listFiles = null;
 
@@ -69,131 +51,37 @@ public class DataHandler {
     } catch (IOException ex) {
       Logger.getLogger(DataHandler.class.getName()).log(Level.SEVERE, null, ex);
     }
-    Logger.getLogger(DataHandler.class.getName()).log(Level.INFO, listFiles.toString());
+    Logger.getLogger(DataHandler.class.getName()).log(Level.INFO, "Opening list of files: {0}", listFiles.toString());
 
     for (String f : listFiles) {
       File ff = new File(f);
       igcProcess = new IGCprocessing(ff);
       igcProcess.processIGC();
-
-      this.rasterizeTrack();
-      this.addToList();
+      // get pointList from igc data
+      rData.rasterizeTrack(igcProcess.getPointListWGS84());
+      rData.addToList();
     }
-
-    this.sumRaster();
-    this.createImageFromInt();
-
-  }
-  
-  private void resetRaster() {
-    raster = new boolean[nbElemX][nbElemY];
+    // analyse all rasters
+    rData.sumRaster();
+    imageRaster = rData.createImageFromInt();
+    showImgOnPanel(imageRaster);
+    // image now available
+    MainFrame.setMenuSaveActive();
   }
 
-  private void rasterizeTrack() {
-    resetRaster();
-    int indX;
-    int indY;
-
-    for (Point2D.Double p0 : igcProcess.getPointListWGS84()) {
-      Point2D.Double pt = IGCprocessing.wgs84ToLV95(p0);
-
-      indX = Math.floorDiv((int) pt.getX() - X_MIN, CELL_SIZE);
-      indY = Math.floorDiv((int) pt.getY() - Y_MIN, CELL_SIZE);
-
-      if ((indX >= 0 && indX < nbElemX) && (indY >= 0 && indY < nbElemY)) {
-        raster[indX][indY] = true;
-//        System.out.println("Set index: " + indX + ", " + indY);
-      }
-    }
-  }
-
-  // add to list
-  private void addToList() {
-    listRaster.add(raster);
-  }
-
-  // save file
+  // save image to file
   public void saveImage(File file) {
     if (file != null) {
       try {
-        Logger.getLogger(DataHandler.class.getName()).log(Level.INFO, "Save to file '" + file + "'");
-        ImageIO.write(imageBinary, "png", file);
+        Logger.getLogger(DataHandler.class.getName()).log(Level.INFO, "Save image to file: '{0}'", file);
+        ImageIO.write(imageRaster, "png", file);
       } catch (IOException ex) {
         Logger.getLogger(DataHandler.class.getName()).log(Level.SEVERE, null, ex);
       }
     }
   }
 
-  // save file
-  public void saveImage2(File file) {
-    if (file != null) {
-      try {
-        Logger.getLogger(DataHandler.class.getName()).log(Level.INFO, "Save to file '" + file + "'");
-        ImageIO.write(image, "png", file);
-      } catch (IOException ex) {
-        Logger.getLogger(DataHandler.class.getName()).log(Level.SEVERE, null, ex);
-      }
-    }
-  }
-
-  // create image
-  private void createImageFromBool() {
-    imageBinary = new BufferedImage(nbElemX, nbElemY, BufferedImage.TYPE_BYTE_BINARY);
-    int col;
-
-    for (int i = 0; i < nbElemX; i++) {
-      for (int j = 0; j < nbElemY; j++) {
-        if (raster[i][nbElemY - j - 1]) {
-          col = Color.black.getRGB();
-        } else {
-          col = Color.white.getRGB();
-        }
-        imageBinary.setRGB(i, j, col);
-      }
-    }
-    // image now available
-    MainFrame.setMenuSaveActive();
-  }
-
-  // create image
-  private void createImageFromInt() {
-    image = new BufferedImage(nbElemX, nbElemY, BufferedImage.TYPE_INT_RGB);
-    for (int i = 0; i < nbElemX; i++) {
-      for (int j = 0; j < nbElemY; j++) {
-        int c = (int) (255.0f * sum[i][j] / maxVal);
-        if (sum[i][j] > 0) {
-        }
-        Color col = new Color(c, c, c);
-        image.setRGB(i, j, col.getRGB());
-      }
-    }
-    // image now available
-    MainFrame.setMenuSaveActive();
-  }
-
-  // sum raster
-  private void sumRaster() {
-
-    for (int i = 0; i < nbElemX; i++) {
-      for (int j = 0; j < nbElemY; j++) {
-        int count = 0;
-        for (boolean[][] r : listRaster) {
-
-          if (r[i][j]) {
-            count++;
-          }
-        }
-        sum[i][j] = count;
-        System.out.println("Set pixel " + i + "-" + j + " to " + count);
-        if (count > maxVal) {
-          maxVal = count;
-        }
-      }
-    }
-
-    System.out.println("Max. value: " + maxVal);
-  }
-
+  // create a list with all files in a directory
   public static List<String> findFiles(Path path, String fileExtension) throws IOException {
     if (!Files.isDirectory(path)) {
       throw new IllegalArgumentException("Path must be a directory!");
@@ -212,18 +100,10 @@ public class DataHandler {
     return result;
   }
 
-  // test
-  private void checkRaster() {
-    int count = 0;
-
-    for (int i = 0; i < nbElemX; i++) {
-      for (int j = 0; j < nbElemY; j++) {
-        if (raster[i][j]) {
-          count++;
-        }
-      }
-    }
-    System.out.println("Nb of activ cells: " + count);
+  // add image to GraphicPanel
+  private void showImgOnPanel(BufferedImage img) {
+    GraphicPanel.setImg(img);
+    MainFrame.updateGraphicPanel();
   }
 
 }
