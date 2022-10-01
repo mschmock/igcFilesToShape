@@ -3,6 +3,7 @@
 package ch.manuel.igctoraster;
 
 import java.awt.Color;
+import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -98,15 +99,19 @@ public class RasterData {
     BufferedImage image = new BufferedImage(nbElemX, nbElemY, BufferedImage.TYPE_INT_RGB);
     for (int i = 0; i < nbElemX; i++) {
       for (int j = 0; j < nbElemY; j++) {
-        int c = (int) (255.0f - 255.0f * sumRaster[i][j] / maxVal);
+        float c = 1.0f * sumRaster[i][j] / maxVal;
+        Color col;
         if (sumRaster[i][j] > 0) {
+          col = Color.getHSBColor(c * 80.0f / 360.0f, 1.0f, 1.0f);
+        } else {
+          col = new Color(255, 255, 255, 255);
         }
-        Color col = new Color(c, c, c);
         image.setRGB(i, j, col.getRGB());
       }
     }
     return image;
   }
+
   // return binary image form raster
   public BufferedImage createImageFromBool() {
     BufferedImage image = new BufferedImage(nbElemX, nbElemY, BufferedImage.TYPE_BYTE_BINARY);
@@ -124,8 +129,15 @@ public class RasterData {
     }
     return image;
   }
-
   
+  // get boundry
+  public Point2D.Double getULcornerLV95() {
+    return new Point2D.Double(X_MIN, Y_MAX);
+  }
+  public Point2D.Double getLRcornerLV95() {
+    return new Point2D.Double(X_MAX, Y_MIN);
+  }
+
   // test raster
   private void checkRaster() {
     int count = 0;

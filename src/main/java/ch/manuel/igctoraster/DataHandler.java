@@ -27,7 +27,7 @@ public class DataHandler {
   // CONSTRUCTOR
   public DataHandler(File file) {
     this.file = file;
-    rData = new RasterData(1000);    // create raster with cell size of 500 m
+    rData = new RasterData(500);    // create raster with cell size of 500 m
   }
 
   // process a single igc file
@@ -63,8 +63,7 @@ public class DataHandler {
     }
     // analyse all rasters
     rData.sumRaster();
-    imageRaster = rData.createImageFromInt();
-    showImgOnPanel(imageRaster);
+    showImgOnPanel();
     // image now available
     MainFrame.setMenuSaveActive();
   }
@@ -101,8 +100,8 @@ public class DataHandler {
   }
 
   // add image to GraphicPanel
-  private void showImgOnPanel(BufferedImage img) {
-    GraphicPanel.setImg(img);
+  private void showImgOnPanel() {
+    GraphicPanel.setImg(rData);
     MainFrame.updateGraphicPanel();
   }
 

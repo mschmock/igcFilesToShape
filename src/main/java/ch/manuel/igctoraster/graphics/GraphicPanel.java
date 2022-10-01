@@ -3,6 +3,7 @@
 package ch.manuel.igctoraster.graphics;
 
 import ch.manuel.igctoraster.DataLoader;
+import ch.manuel.igctoraster.RasterData;
 import ch.manuel.igctoraster.geodata.GeoData;
 import ch.manuel.igctoraster.geodata.Municipality;
 import ch.manuel.igctoraster.gui.MainFrame;
@@ -15,11 +16,14 @@ import java.awt.Polygon;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JPanel;
 
 public class GraphicPanel extends JPanel {
@@ -38,8 +42,10 @@ public class GraphicPanel extends JPanel {
   private static Map<Integer, Municipality> mapID;             // map with id of municipalities
   // network
   private static Municipality selectedMunicip;
-  // background
+  // raster
   private static BufferedImage image;
+  private static Point2D.Double ulCorner;
+  private static Point2D.Double lrCorner;
 
   // CONSTRUCTOR
   public GraphicPanel() {
@@ -50,7 +56,6 @@ public class GraphicPanel extends JPanel {
     listPoly = new ArrayList<>();
     listPolyLakes = new ArrayList<>();
     mapID = new HashMap<>();
-    image = null;
 
     // get polygons from geoData
     GraphicPanel.geoData = DataLoader.geoData;
@@ -60,6 +65,11 @@ public class GraphicPanel extends JPanel {
     tx = new AffineTransform();
     zoom = 1.0f;
     drag = new Point(0, 0);
+
+    // raster
+    image = null;
+    ulCorner = new Point2D.Double(0, 0);
+    lrCorner = new Point2D.Double(this.getWidth(), this.getHeight());
   }
 
   // initalisation of polygons (border municipalites)
@@ -96,20 +106,21 @@ public class GraphicPanel extends JPanel {
   @Override
   protected void paintComponent(Graphics g) {
     super.paintComponent(g);
-    // draw background, if set
-    if (image != null) {
-      g.drawImage(image, 0, 0, this.getWidth(), this.getHeight(), this);
-    }
-    
+
+    // draw geo data
     Graphics2D g2 = (Graphics2D) g;
     if (geoData != null) {
       // define transformation
       calcTransformation();
+      // draw raster on top (with transparancy)
+      drawImg(g);
+
       // draw polygons
       drawLakes(g2);
       drawBorder(g2);
       drawTrack(g2);
     }
+
   }
 
   // repaint on click
@@ -119,8 +130,10 @@ public class GraphicPanel extends JPanel {
   }
 
   // set img background
-  public static void setImg(BufferedImage image) {
-    GraphicPanel.image = image;
+  public static void setImg(RasterData rData) {
+    GraphicPanel.image = rData.createImageFromInt();
+    GraphicPanel.ulCorner = rData.getULcornerLV95();
+    GraphicPanel.lrCorner = rData.getLRcornerLV95();
   }
 
   // set igc track
@@ -161,6 +174,17 @@ public class GraphicPanel extends JPanel {
     tx.concatenate(scale);
     tx.concatenate(trans);
 
+  }
+
+  // draw image
+  private void drawImg(Graphics g) {
+    Point2D p1 = GraphicPanel.tx.transform(ulCorner, null);
+    Point2D p2 = GraphicPanel.tx.transform(lrCorner, null);
+
+    if (image != null) {
+      Logger.getLogger(GraphicPanel.class.getName()).log(Level.INFO, "Set image to position: {0},{1},{2},{3}", new Object[]{p1.getX(), p1.getY(), p2.getX(), p2.getY()});
+      g.drawImage(image, (int) p1.getX(), (int) p1.getY(), (int) p2.getX(), (int) p2.getY(), this);
+    }
   }
 
   // draw Border
