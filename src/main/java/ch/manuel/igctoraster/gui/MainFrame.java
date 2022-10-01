@@ -3,7 +3,6 @@
 package ch.manuel.igctoraster.gui;
 
 import ch.manuel.igctoraster.DataHandler;
-import ch.manuel.igctoraster.IGCprocessing;
 import ch.manuel.utilities.MyUtilities;
 import java.awt.Point;
 import java.io.File;
@@ -219,7 +218,7 @@ public class MainFrame extends javax.swing.JFrame {
     File file;
     FileFilter filter = new FileNameExtensionFilter("IGC files", "igc");
     file = MyUtilities.getSaveFileDialog("Save Tiff", filter, "image.png");
-    dHandler.saveImage(file);
+    dHandler.saveImage2(file);
   }//GEN-LAST:event_jMenuItem3ActionPerformed
 
   private void graphicPanel1MouseWheelMoved(java.awt.event.MouseWheelEvent evt) {//GEN-FIRST:event_graphicPanel1MouseWheelMoved

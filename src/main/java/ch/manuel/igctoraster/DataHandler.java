@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,6 +24,10 @@ public class DataHandler {
   private File file;
   private IGCprocessing igcProcess;
   private boolean[][] raster;
+  private List<boolean[][]> listRaster;
+  private int[][] sum;
+  private int maxVal;
+  private BufferedImage imageBinary;
   private BufferedImage image;
 
   // raster data
@@ -42,6 +47,9 @@ public class DataHandler {
     nbElemY = Math.floorDiv(Y_MAX - Y_MIN, CELL_SIZE);
 
     raster = new boolean[nbElemX][nbElemY];
+    listRaster = new ArrayList<>();
+    sum = new int[nbElemX][nbElemY];
+    maxVal = 0;
   }
 
   public void processSingleFile() {
@@ -50,7 +58,7 @@ public class DataHandler {
     igcProcess.showPolygonOnPanel();
     this.rasterizeTrack();
     this.checkRaster();
-    this.createImage();
+    this.createImageFromBool();
   }
 
   public void processFiles() {
@@ -62,9 +70,27 @@ public class DataHandler {
       Logger.getLogger(DataHandler.class.getName()).log(Level.SEVERE, null, ex);
     }
     Logger.getLogger(DataHandler.class.getName()).log(Level.INFO, listFiles.toString());
+
+    for (String f : listFiles) {
+      File ff = new File(f);
+      igcProcess = new IGCprocessing(ff);
+      igcProcess.processIGC();
+
+      this.rasterizeTrack();
+      this.addToList();
+    }
+
+    this.sumRaster();
+    this.createImageFromInt();
+
+  }
+  
+  private void resetRaster() {
+    raster = new boolean[nbElemX][nbElemY];
   }
 
   private void rasterizeTrack() {
+    resetRaster();
     int indX;
     int indY;
 
@@ -79,11 +105,27 @@ public class DataHandler {
 //        System.out.println("Set index: " + indX + ", " + indY);
       }
     }
+  }
 
+  // add to list
+  private void addToList() {
+    listRaster.add(raster);
   }
 
   // save file
   public void saveImage(File file) {
+    if (file != null) {
+      try {
+        Logger.getLogger(DataHandler.class.getName()).log(Level.INFO, "Save to file '" + file + "'");
+        ImageIO.write(imageBinary, "png", file);
+      } catch (IOException ex) {
+        Logger.getLogger(DataHandler.class.getName()).log(Level.SEVERE, null, ex);
+      }
+    }
+  }
+
+  // save file
+  public void saveImage2(File file) {
     if (file != null) {
       try {
         Logger.getLogger(DataHandler.class.getName()).log(Level.INFO, "Save to file '" + file + "'");
@@ -95,8 +137,8 @@ public class DataHandler {
   }
 
   // create image
-  private void createImage() {
-    image = new BufferedImage(nbElemX, nbElemY, BufferedImage.TYPE_BYTE_BINARY);
+  private void createImageFromBool() {
+    imageBinary = new BufferedImage(nbElemX, nbElemY, BufferedImage.TYPE_BYTE_BINARY);
     int col;
 
     for (int i = 0; i < nbElemX; i++) {
@@ -106,19 +148,56 @@ public class DataHandler {
         } else {
           col = Color.white.getRGB();
         }
-        image.setRGB(i, j, col);
+        imageBinary.setRGB(i, j, col);
       }
     }
     // image now available
     MainFrame.setMenuSaveActive();
   }
 
-  public static List<String> findFiles(Path path, String fileExtension) throws IOException {
+  // create image
+  private void createImageFromInt() {
+    image = new BufferedImage(nbElemX, nbElemY, BufferedImage.TYPE_INT_RGB);
+    for (int i = 0; i < nbElemX; i++) {
+      for (int j = 0; j < nbElemY; j++) {
+        int c = (int) (255.0f * sum[i][j] / maxVal);
+        if (sum[i][j] > 0) {
+        }
+        Color col = new Color(c, c, c);
+        image.setRGB(i, j, col.getRGB());
+      }
+    }
+    // image now available
+    MainFrame.setMenuSaveActive();
+  }
 
+  // sum raster
+  private void sumRaster() {
+
+    for (int i = 0; i < nbElemX; i++) {
+      for (int j = 0; j < nbElemY; j++) {
+        int count = 0;
+        for (boolean[][] r : listRaster) {
+
+          if (r[i][j]) {
+            count++;
+          }
+        }
+        sum[i][j] = count;
+        System.out.println("Set pixel " + i + "-" + j + " to " + count);
+        if (count > maxVal) {
+          maxVal = count;
+        }
+      }
+    }
+
+    System.out.println("Max. value: " + maxVal);
+  }
+
+  public static List<String> findFiles(Path path, String fileExtension) throws IOException {
     if (!Files.isDirectory(path)) {
       throw new IllegalArgumentException("Path must be a directory!");
     }
-
     List<String> result;
 
     try ( Stream<Path> walk = Files.walk(path)) {
@@ -130,7 +209,6 @@ public class DataHandler {
               .filter(f -> f.endsWith(fileExtension))
               .collect(Collectors.toList());
     }
-
     return result;
   }
 
