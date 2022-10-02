@@ -24,9 +24,11 @@ public class IGCprocessing {
   private BufferedReader reader;
   private List<Point2D.Double> listLonLat;
   private Path2D.Double igcTrack;
+  private boolean isSuccessful;
 
   // Regex
-  private static final Pattern B_RECORD_RE = Pattern.compile("^B(\\d{6})(\\d{2})(\\d{5})([NS])(\\d{3})(\\d{5})([EW])([AV])(\\d{5})(\\d{5})");
+  private static final Pattern B_RECORD_RE = 
+          Pattern.compile("^B(\\d{6})(\\d{2})(\\d{5})([NS])(\\d{3})(\\d{5})([EW])([AV])(\\d{5}|-\\d{4})(\\d{5})");
 
   /*  group 1: time
       group 2+3: latitude
@@ -37,6 +39,7 @@ public class IGCprocessing {
   public IGCprocessing(File file) {
     listLonLat = new ArrayList<>();
     igcTrack = new Path2D.Double();
+    isSuccessful = false;
 
     try {
       reader = new BufferedReader(new FileReader(file));
@@ -56,9 +59,7 @@ public class IGCprocessing {
   }
 
   public void processIGC() {
-
     String line;
-
     try {
       // read lines
       while ((line = reader.readLine()) != null) {
@@ -83,8 +84,11 @@ public class IGCprocessing {
     } catch (IOException ex) {
       Logger.getLogger(IGCprocessing.class.getName()).log(Level.SEVERE, null, ex);
     }
-    // create polygon (LV95)
-    createPolygon();
+    if( listLonLat.size() > 0 ) {
+      // create polygon (LV95)
+      createPolygon();
+      this.isSuccessful = true;
+    }
   }
 
   // add Polygon to GraphicPanel
@@ -103,8 +107,12 @@ public class IGCprocessing {
       p = wgs84ToLV95( p0); // Transform to LV95
       igcTrack.lineTo(p.getX(), p.getY());
     }
-
   }
+  
+  // is igc processing successfully ending
+  public boolean isProcessingOK() {
+    return this.isSuccessful;
+  } 
 
   // Transformation of ellipsoidal WGS84 coordinates to Swiss projection coordinates
   // Source: https://www.swisstopo.admin.ch/

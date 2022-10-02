@@ -56,6 +56,12 @@ public class MainFrame extends javax.swing.JFrame {
     MainFrame.jMenuItem3.setEnabled(true);
     MainFrame.jMenuItem6.setEnabled(true);
   }
+  
+  public static int getCellsizeFromInput() {
+    return (int) jSpinner1.getModel().getValue();
+  } 
+  
+  
 
   /**
    * This method is called from within the constructor to initialize the form. WARNING: Do NOT
@@ -67,6 +73,8 @@ public class MainFrame extends javax.swing.JFrame {
 
     graphicPanel1 = new ch.manuel.igctoraster.graphics.GraphicPanel();
     jTextField1 = new javax.swing.JTextField();
+    jLabel1 = new javax.swing.JLabel();
+    jSpinner1 = new javax.swing.JSpinner();
     jMenuBar1 = new javax.swing.JMenuBar();
     jMenu1 = new javax.swing.JMenu();
     jMenuItem2 = new javax.swing.JMenuItem();
@@ -81,7 +89,9 @@ public class MainFrame extends javax.swing.JFrame {
     jMenuItem1 = new javax.swing.JMenuItem();
 
     setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+    setTitle("IGC Analyzer");
 
+    graphicPanel1.setBackground(new java.awt.Color(204, 204, 204));
     graphicPanel1.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
       public void mouseDragged(java.awt.event.MouseEvent evt) {
         graphicPanel1MouseDragged(evt);
@@ -101,26 +111,32 @@ public class MainFrame extends javax.swing.JFrame {
       }
     });
 
+    javax.swing.GroupLayout graphicPanel1Layout = new javax.swing.GroupLayout(graphicPanel1);
+    graphicPanel1.setLayout(graphicPanel1Layout);
+    graphicPanel1Layout.setHorizontalGroup(
+      graphicPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGap(0, 800, Short.MAX_VALUE)
+    );
+    graphicPanel1Layout.setVerticalGroup(
+      graphicPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGap(0, 541, Short.MAX_VALUE)
+    );
+
     jTextField1.setEditable(false);
     jTextField1.setBackground(new java.awt.Color(255, 255, 255));
     jTextField1.setForeground(new java.awt.Color(102, 102, 102));
     jTextField1.setText("Status: No info");
     jTextField1.setBorder(null);
+    jTextField1.setPreferredSize(new java.awt.Dimension(300, 15));
 
-    javax.swing.GroupLayout graphicPanel1Layout = new javax.swing.GroupLayout(graphicPanel1);
-    graphicPanel1.setLayout(graphicPanel1Layout);
-    graphicPanel1Layout.setHorizontalGroup(
-      graphicPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, graphicPanel1Layout.createSequentialGroup()
-        .addGap(0, 580, Short.MAX_VALUE)
-        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE))
-    );
-    graphicPanel1Layout.setVerticalGroup(
-      graphicPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, graphicPanel1Layout.createSequentialGroup()
-        .addGap(0, 564, Short.MAX_VALUE)
-        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-    );
+    jLabel1.setText("Cellsize");
+
+    jSpinner1.setModel(new javax.swing.SpinnerNumberModel(500, 50, 10000, 1));
+    jSpinner1.addChangeListener(new javax.swing.event.ChangeListener() {
+      public void stateChanged(javax.swing.event.ChangeEvent evt) {
+        jSpinner1StateChanged(evt);
+      }
+    });
 
     jMenu1.setText("File");
 
@@ -204,10 +220,25 @@ public class MainFrame extends javax.swing.JFrame {
     layout.setHorizontalGroup(
       layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
       .addComponent(graphicPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+      .addGroup(layout.createSequentialGroup()
+        .addContainerGap()
+        .addComponent(jLabel1)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+        .addComponent(jSpinner1, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addContainerGap())
     );
     layout.setVerticalGroup(
       layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addComponent(graphicPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+      .addGroup(layout.createSequentialGroup()
+        .addComponent(graphicPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+          .addComponent(jLabel1)
+          .addComponent(jSpinner1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+          .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        .addGap(6, 6, 6))
     );
 
     pack();
@@ -244,8 +275,7 @@ public class MainFrame extends javax.swing.JFrame {
     File file;
     FileFilter filter = new FileNameExtensionFilter("GIS Raster files", "tiff");
     file = MyUtilities.getSaveFileDialog("Save Tiff", filter, "igcdata.tiff");
-    
-    // Todo
+    dHandler.saveXYZ(file);
   }//GEN-LAST:event_jMenuItem3ActionPerformed
 
   private void graphicPanel1MouseWheelMoved(java.awt.event.MouseWheelEvent evt) {//GEN-FIRST:event_graphicPanel1MouseWheelMoved
@@ -304,9 +334,14 @@ public class MainFrame extends javax.swing.JFrame {
     dHandler.saveImage(file);
   }//GEN-LAST:event_jMenuItem6ActionPerformed
 
+  private void jSpinner1StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSpinner1StateChanged
+    MainFrame.setStatusText("Cellsize change to " + jSpinner1.getModel().getValue().toString() + " m");
+  }//GEN-LAST:event_jSpinner1StateChanged
+
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
   private static ch.manuel.igctoraster.graphics.GraphicPanel graphicPanel1;
+  private static javax.swing.JLabel jLabel1;
   private static javax.swing.JMenu jMenu1;
   private static javax.swing.JMenu jMenu2;
   private static javax.swing.JMenu jMenu3;
@@ -319,6 +354,7 @@ public class MainFrame extends javax.swing.JFrame {
   private static javax.swing.JMenuItem jMenuItem5;
   private static javax.swing.JMenuItem jMenuItem6;
   private static javax.swing.JMenuItem jMenuItem7;
+  private static javax.swing.JSpinner jSpinner1;
   private static javax.swing.JTextField jTextField1;
   // End of variables declaration//GEN-END:variables
 }

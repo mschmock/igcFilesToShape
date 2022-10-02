@@ -5,7 +5,9 @@ package ch.manuel.igctoraster;
 import ch.manuel.igctoraster.graphics.GraphicPanel;
 import ch.manuel.igctoraster.gui.MainFrame;
 import java.awt.image.BufferedImage;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -27,7 +29,8 @@ public class DataHandler {
   // CONSTRUCTOR
   public DataHandler(File file) {
     this.file = file;
-    rData = new RasterData(500);    // create raster with cell size of 500 m
+    int cellsize = MainFrame.getCellsizeFromInput();
+    rData = new RasterData(cellsize);                   // create raster with cell size from input
   }
 
   // process a single igc file
@@ -55,12 +58,18 @@ public class DataHandler {
     Logger.getLogger(DataHandler.class.getName()).log(Level.INFO, "Opening list of files: {0}", listFiles.toString());
 
     for (String f : listFiles) {
+      Logger.getLogger(DataHandler.class.getName()).log(Level.INFO, "Process file: {0}", f);
       File ff = new File(f);
       igcProcess = new IGCprocessing(ff);
       igcProcess.processIGC();
-      // get pointList from igc data
-      rData.rasterizeTrack(igcProcess.getPointListWGS84());
-      rData.addToList();
+      if(igcProcess.isProcessingOK()) {
+        // get pointList from igc data
+        rData.rasterizeTrack(igcProcess.getPointListWGS84());
+        rData.addToList();
+      } else {
+        Logger.getLogger(DataHandler.class.getName()).log(Level.WARNING, "File skipped: {0}", f);
+        MainFrame.setStatusText("File error: " + f);
+      }
     }
     // analyse all rasters
     rData.sumRaster();
@@ -79,6 +88,27 @@ public class DataHandler {
       } catch (IOException ex) {
         Logger.getLogger(DataHandler.class.getName()).log(Level.SEVERE, null, ex);
       }
+    }
+  }
+  
+  // save data to xyz file
+  public void saveXYZ(File file) {
+    
+    if(file != null) {
+      BufferedWriter writer;
+      try {
+        Logger.getLogger(DataHandler.class.getName()).log(Level.INFO, "Save data to file: '{0}'", file);
+        writer = new BufferedWriter(new FileWriter(file));
+        rData.writeRasterTofile(writer);
+        writer.close();
+      } catch (IOException ex) {
+        Logger.getLogger(DataHandler.class.getName()).log(Level.SEVERE, null, ex);
+      }
+      
+      
+//    printWriter.print("Some String");
+//    printWriter.printf("Product name is %s and its price is %d $", "iPhone", 1000);
+      
     }
   }
 

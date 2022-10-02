@@ -3,9 +3,10 @@
 package ch.manuel.igctoraster;
 
 import java.awt.Color;
-import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -99,11 +100,11 @@ public class RasterData {
     BufferedImage image = new BufferedImage(nbElemX, nbElemY, BufferedImage.TYPE_INT_ARGB);
     for (int i = 0; i < nbElemX; i++) {
       for (int j = 0; j < nbElemY; j++) {
-        float c = 1.0f * sumRaster[i][j] / maxVal;
+        float c = (float) (Math.log(sumRaster[i][j]) / Math.log(maxVal));
         Color col;
         int rgba;
         if (sumRaster[i][j] > 0) {
-          col = Color.getHSBColor(c * 90.0f / 360.0f, 0.75f + c * 0.25f, 1.0f);
+          col = Color.getHSBColor(c * 120.0f / 360.0f, 0.5f + c * 0.5f, 1.0f);
           rgba = changeAlpha(col.getRGB(), 255);
         } else {
           col = new Color(0, 0, 0);
@@ -131,6 +132,19 @@ public class RasterData {
       }
     }
     return image;
+  }
+  
+  // write raster to file
+  public void writeRasterTofile(BufferedWriter bwr) throws IOException {
+    for (int i = 0; i < nbElemX; i++) {
+      int valX = X_MIN + i * cellSize;
+      for (int j = 0; j < nbElemY; j++) {
+        int valY = Y_MIN + j * cellSize;
+          int valZ = sumRaster[i][j];
+          bwr.write(valX + "\t" + valY + "\t" + valZ);
+          bwr.newLine();
+      }
+    }
   }
 
   // get boundry: Upper Left Corner
