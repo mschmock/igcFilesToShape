@@ -54,6 +54,7 @@ public class MainFrame extends javax.swing.JFrame {
 
   public static void setMenuSaveActive() {
     MainFrame.jMenuItem3.setEnabled(true);
+    MainFrame.jMenuItem6.setEnabled(true);
   }
 
   /**
@@ -70,7 +71,10 @@ public class MainFrame extends javax.swing.JFrame {
     jMenu1 = new javax.swing.JMenu();
     jMenuItem2 = new javax.swing.JMenuItem();
     jMenuItem5 = new javax.swing.JMenuItem();
+    jMenuItem7 = new javax.swing.JMenuItem();
+    jMenu4 = new javax.swing.JMenu();
     jMenuItem3 = new javax.swing.JMenuItem();
+    jMenuItem6 = new javax.swing.JMenuItem();
     jMenu3 = new javax.swing.JMenu();
     jMenuItem4 = new javax.swing.JMenuItem();
     jMenu2 = new javax.swing.JMenu();
@@ -136,16 +140,38 @@ public class MainFrame extends javax.swing.JFrame {
     });
     jMenu1.add(jMenuItem5);
 
-    jMenuItem3.setText("Save geoTiff");
+    jMenuItem7.setText("Exit");
+    jMenuItem7.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        jMenuItem7ActionPerformed(evt);
+      }
+    });
+    jMenu1.add(jMenuItem7);
+
+    jMenuBar1.add(jMenu1);
+
+    jMenu4.setText("Export");
+
+    jMenuItem3.setText("Save geoTiff GIS");
     jMenuItem3.setEnabled(false);
     jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         jMenuItem3ActionPerformed(evt);
       }
     });
-    jMenu1.add(jMenuItem3);
+    jMenu4.add(jMenuItem3);
 
-    jMenuBar1.add(jMenu1);
+    jMenuItem6.setText("Save PNG (.png)");
+    jMenuItem6.setActionCommand("Save PNG");
+    jMenuItem6.setEnabled(false);
+    jMenuItem6.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        jMenuItem6ActionPerformed(evt);
+      }
+    });
+    jMenu4.add(jMenuItem6);
+
+    jMenuBar1.add(jMenu4);
 
     jMenu3.setText("View");
 
@@ -214,11 +240,12 @@ public class MainFrame extends javax.swing.JFrame {
   }//GEN-LAST:event_jMenuItem2ActionPerformed
 
   private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
-    // open save dialog
+    // open save dialog: geoTiff, GIS file
     File file;
-    FileFilter filter = new FileNameExtensionFilter("IGC files", "igc");
-    file = MyUtilities.getSaveFileDialog("Save Tiff", filter, "image.png");
-    dHandler.saveImage(file);
+    FileFilter filter = new FileNameExtensionFilter("GIS Raster files", "tiff");
+    file = MyUtilities.getSaveFileDialog("Save Tiff", filter, "igcdata.tiff");
+    
+    // Todo
   }//GEN-LAST:event_jMenuItem3ActionPerformed
 
   private void graphicPanel1MouseWheelMoved(java.awt.event.MouseWheelEvent evt) {//GEN-FIRST:event_graphicPanel1MouseWheelMoved
@@ -234,15 +261,15 @@ public class MainFrame extends javax.swing.JFrame {
   }//GEN-LAST:event_graphicPanel1MouseWheelMoved
 
   private void graphicPanel1MouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_graphicPanel1MouseDragged
+    // get vector for drag map
     if (ptClicked == null) {
       ptClicked = new Point(evt.getX(), evt.getY());
     }
     ptDragged = new Point(evt.getX() - (int) ptClicked.getX(), evt.getY() - (int) ptClicked.getY());
-    System.out.println("Clicked: " + ptClicked.toString());
-    System.out.println("Dragged: " + ptDragged.toString());
   }//GEN-LAST:event_graphicPanel1MouseDragged
 
   private void graphicPanel1MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_graphicPanel1MouseReleased
+    // drag map
     MainFrame.graphicPanel1.dragMap(ptDragged);
     ptClicked = null;
   }//GEN-LAST:event_graphicPanel1MouseReleased
@@ -264,18 +291,34 @@ public class MainFrame extends javax.swing.JFrame {
     }
   }//GEN-LAST:event_jMenuItem5ActionPerformed
 
+  private void jMenuItem7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem7ActionPerformed
+    // exit application
+    System.exit(0);
+  }//GEN-LAST:event_jMenuItem7ActionPerformed
+
+  private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
+    // open save dialog: PNG file
+    File file;
+    FileFilter filter = new FileNameExtensionFilter("PNG files", "png");
+    file = MyUtilities.getSaveFileDialog("Save PNG", filter, "image.png");
+    dHandler.saveImage(file);
+  }//GEN-LAST:event_jMenuItem6ActionPerformed
+
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
   private static ch.manuel.igctoraster.graphics.GraphicPanel graphicPanel1;
   private static javax.swing.JMenu jMenu1;
   private static javax.swing.JMenu jMenu2;
   private static javax.swing.JMenu jMenu3;
+  private static javax.swing.JMenu jMenu4;
   private static javax.swing.JMenuBar jMenuBar1;
   private static javax.swing.JMenuItem jMenuItem1;
   private static javax.swing.JMenuItem jMenuItem2;
   private static javax.swing.JMenuItem jMenuItem3;
   private static javax.swing.JMenuItem jMenuItem4;
   private static javax.swing.JMenuItem jMenuItem5;
+  private static javax.swing.JMenuItem jMenuItem6;
+  private static javax.swing.JMenuItem jMenuItem7;
   private static javax.swing.JTextField jTextField1;
   // End of variables declaration//GEN-END:variables
 }

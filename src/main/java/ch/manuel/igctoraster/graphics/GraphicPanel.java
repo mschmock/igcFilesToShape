@@ -98,7 +98,6 @@ public class GraphicPanel extends JPanel {
             );
           }
         }
-
       }
     }
   }
@@ -112,13 +111,14 @@ public class GraphicPanel extends JPanel {
     if (geoData != null) {
       // define transformation
       calcTransformation();
-      // draw raster on top (with transparancy)
-      drawImg(g);
 
       // draw polygons
       drawLakes(g2);
       drawBorder(g2);
       drawTrack(g2);
+
+      // draw raster on top (with transparancy)
+      drawImg(g);
     }
 
   }
@@ -178,12 +178,15 @@ public class GraphicPanel extends JPanel {
 
   // draw image
   private void drawImg(Graphics g) {
-    Point2D p1 = GraphicPanel.tx.transform(ulCorner, null);
-    Point2D p2 = GraphicPanel.tx.transform(lrCorner, null);
+    double pt1[] = new double[]{ulCorner.x, ulCorner.y, lrCorner.x, lrCorner.y};
+    double pt2[] = new double[]{0, 0, 0, 0};
+
+    GraphicPanel.tx.transform(pt1, 0, pt2, 0, 2);
 
     if (image != null) {
-      Logger.getLogger(GraphicPanel.class.getName()).log(Level.INFO, "Set image to position: {0},{1},{2},{3}", new Object[]{p1.getX(), p1.getY(), p2.getX(), p2.getY()});
-      g.drawImage(image, (int) p1.getX(), (int) p1.getY(), (int) p2.getX(), (int) p2.getY(), this);
+      Logger.getLogger(GraphicPanel.class.getName()).log(Level.INFO,
+              "Set image to position: {0},{1},{2},{3}", new Object[]{(int) pt2[0], (int) pt2[1], (int) pt2[2], (int) pt2[3]});
+      g.drawImage(image, (int) pt2[0], (int) pt2[1], (int) (pt2[2] - pt2[0]), (int) (pt2[3] - pt2[1]), this);
     }
   }
 
@@ -274,8 +277,10 @@ public class GraphicPanel extends JPanel {
   }
 
   public void dragMap(Point p) {
-    drag = new Point((int) (p.getX() + drag.getX()), (int) (p.getY() + drag.getY()));
-    repaintPanel();
+    if(p != null) {
+      drag = new Point((int) (p.getX() + drag.getX()), (int) (p.getY() + drag.getY()));
+      repaintPanel();
+    }
   }
 
   public void resetView() {

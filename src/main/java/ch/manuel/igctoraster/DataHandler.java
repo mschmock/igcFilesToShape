@@ -37,8 +37,9 @@ public class DataHandler {
     igcProcess.showPolygonOnPanel();
     // get pointList from igc data
     rData.rasterizeTrack(igcProcess.getPointListWGS84());
-    imageRaster = rData.createImageFromBool();
+    
     // image now available
+    imageRaster = rData.createImageFromBool();
     MainFrame.setMenuSaveActive();
   }
 
@@ -65,6 +66,7 @@ public class DataHandler {
     rData.sumRaster();
     showImgOnPanel();
     // image now available
+    imageRaster = rData.createImageFromInt();
     MainFrame.setMenuSaveActive();
   }
 

@@ -96,17 +96,20 @@ public class RasterData {
   // RETURN IMAGE
   // return rgb image from sumRaster
   public BufferedImage createImageFromInt() {
-    BufferedImage image = new BufferedImage(nbElemX, nbElemY, BufferedImage.TYPE_INT_RGB);
+    BufferedImage image = new BufferedImage(nbElemX, nbElemY, BufferedImage.TYPE_INT_ARGB);
     for (int i = 0; i < nbElemX; i++) {
       for (int j = 0; j < nbElemY; j++) {
         float c = 1.0f * sumRaster[i][j] / maxVal;
         Color col;
+        int rgba;
         if (sumRaster[i][j] > 0) {
-          col = Color.getHSBColor(c * 80.0f / 360.0f, 1.0f, 1.0f);
+          col = Color.getHSBColor(c * 90.0f / 360.0f, 0.75f + c * 0.25f, 1.0f);
+          rgba = changeAlpha(col.getRGB(), 255);
         } else {
-          col = new Color(255, 255, 255, 255);
+          col = new Color(0, 0, 0);
+          rgba = changeAlpha(col.getRGB(), 0);
         }
-        image.setRGB(i, j, col.getRGB());
+        image.setRGB(i, nbElemY - j - 1, rgba);
       }
     }
     return image;
@@ -129,13 +132,21 @@ public class RasterData {
     }
     return image;
   }
-  
-  // get boundry
+
+  // get boundry: Upper Left Corner
   public Point2D.Double getULcornerLV95() {
     return new Point2D.Double(X_MIN, Y_MAX);
   }
+
+  // get boundry: Lower Right Corner
   public Point2D.Double getLRcornerLV95() {
     return new Point2D.Double(X_MAX, Y_MIN);
+  }
+
+  // set alpha value in RGBA int value
+  int changeAlpha(int origColor, int userInputedAlpha) {
+    origColor = origColor & 0x00ffffff; //drop the previous alpha value
+    return (userInputedAlpha << 24) | origColor; //add the one the user inputted
   }
 
   // test raster
