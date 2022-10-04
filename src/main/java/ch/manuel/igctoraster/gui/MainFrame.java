@@ -82,6 +82,7 @@ public class MainFrame extends javax.swing.JFrame {
     jMenuItem7 = new javax.swing.JMenuItem();
     jMenu4 = new javax.swing.JMenu();
     jMenuItem3 = new javax.swing.JMenuItem();
+    jMenuItem8 = new javax.swing.JMenuItem();
     jMenuItem6 = new javax.swing.JMenuItem();
     jMenu3 = new javax.swing.JMenu();
     jMenuItem4 = new javax.swing.JMenuItem();
@@ -176,6 +177,15 @@ public class MainFrame extends javax.swing.JFrame {
       }
     });
     jMenu4.add(jMenuItem3);
+
+    jMenuItem8.setText("Save xyz file");
+    jMenuItem8.setEnabled(false);
+    jMenuItem8.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        jMenuItem8ActionPerformed(evt);
+      }
+    });
+    jMenu4.add(jMenuItem8);
 
     jMenuItem6.setText("Save PNG (.png)");
     jMenuItem6.setActionCommand("Save PNG");
@@ -275,7 +285,7 @@ public class MainFrame extends javax.swing.JFrame {
     File file;
     FileFilter filter = new FileNameExtensionFilter("GIS Raster files", "tiff");
     file = MyUtilities.getSaveFileDialog("Save Tiff", filter, "igcdata.tiff");
-    dHandler.saveXYZ(file);
+    dHandler.saveGeoTiff(file);
   }//GEN-LAST:event_jMenuItem3ActionPerformed
 
   private void graphicPanel1MouseWheelMoved(java.awt.event.MouseWheelEvent evt) {//GEN-FIRST:event_graphicPanel1MouseWheelMoved
@@ -338,6 +348,14 @@ public class MainFrame extends javax.swing.JFrame {
     MainFrame.setStatusText("Cellsize change to " + jSpinner1.getModel().getValue().toString() + " m");
   }//GEN-LAST:event_jSpinner1StateChanged
 
+  private void jMenuItem8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem8ActionPerformed
+    // open save dialog: geoTiff, GIS file
+    File file;
+    FileFilter filter = new FileNameExtensionFilter("xyz file", "txt");
+    file = MyUtilities.getSaveFileDialog("Save text file", filter, "xyz.txt");
+    dHandler.saveXYZ(file);
+  }//GEN-LAST:event_jMenuItem8ActionPerformed
+
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
   private static ch.manuel.igctoraster.graphics.GraphicPanel graphicPanel1;
@@ -354,6 +372,7 @@ public class MainFrame extends javax.swing.JFrame {
   private static javax.swing.JMenuItem jMenuItem5;
   private static javax.swing.JMenuItem jMenuItem6;
   private static javax.swing.JMenuItem jMenuItem7;
+  private static javax.swing.JMenuItem jMenuItem8;
   private static javax.swing.JSpinner jSpinner1;
   private static javax.swing.JTextField jTextField1;
   // End of variables declaration//GEN-END:variables

@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.imageio.ImageIO;
+import org.opengis.referencing.FactoryException;
 
 public class DataHandler {
 
@@ -104,11 +105,15 @@ public class DataHandler {
       } catch (IOException ex) {
         Logger.getLogger(DataHandler.class.getName()).log(Level.SEVERE, null, ex);
       }
-      
-      
-//    printWriter.print("Some String");
-//    printWriter.printf("Product name is %s and its price is %d $", "iPhone", 1000);
-      
+    }
+  }
+  
+  // save geoTiff
+  public void saveGeoTiff(File file) {
+    try {
+      rData.writeGeoTiff(file);
+    } catch (FactoryException | IOException ex) {
+      Logger.getLogger(DataHandler.class.getName()).log(Level.SEVERE, null, ex);
     }
   }
 
