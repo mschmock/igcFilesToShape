@@ -5,6 +5,8 @@
 package ch.manuel.igctoraster.gui;
 
 import com.google.common.io.Resources;
+import java.awt.Image;
+import java.awt.Toolkit;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -19,7 +21,8 @@ public class InfoForm extends javax.swing.JDialog {
 
   // files in resources
   private static final String dataHTML = "/data/info.html";
-
+  private static final String icon = "/data/icon.png";
+  
   /**
    * Creates new form InfoForm
    *
@@ -29,7 +32,8 @@ public class InfoForm extends javax.swing.JDialog {
   public InfoForm(java.awt.Frame parent, boolean modal) {
     super(parent, modal);
     initComponents();
-
+    setIcon();
+    
     //add html from ressources
     loadHTML();
   }
@@ -91,6 +95,12 @@ public class InfoForm extends javax.swing.JDialog {
     this.setVisible(false);
   }//GEN-LAST:event_jButton1ActionPerformed
 
+    // set icon
+  private void setIcon() {
+    Image image = Toolkit.getDefaultToolkit().getImage(getClass().getResource(icon));
+    this.setIconImage(image);
+  }
+  
   // get data from html
   private void loadHTML() {
     // get File: info.html
