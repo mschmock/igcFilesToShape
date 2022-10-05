@@ -6,19 +6,11 @@ import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.geotools.coverage.grid.GridCoverage2D;
-import org.geotools.coverage.grid.GridCoverageFactory;
-import org.geotools.gce.geotiff.GeoTiffWriter;
-import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.referencing.CRS;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 public class RasterData {
 
@@ -141,39 +133,18 @@ public class RasterData {
     }
     return image;
   }
-
+  
   // write raster to file
   public void writeRasterTofile(BufferedWriter bwr) throws IOException {
     for (int i = 0; i < nbElemX; i++) {
       int valX = X_MIN + i * cellSize;
       for (int j = 0; j < nbElemY; j++) {
         int valY = Y_MIN + j * cellSize;
-        int valZ = sumRaster[i][j];
-        bwr.write(valX + "\t" + valY + "\t" + valZ);
-        bwr.newLine();
+          int valZ = sumRaster[i][j];
+          bwr.write(valX + "\t" + valY + "\t" + valZ);
+          bwr.newLine();
       }
     }
-  }
-
-  // write geotiff
-  public void writeGeoTiff(File file) throws FactoryException, IOException {
-    float[][] fRaster = new float[nbElemX][nbElemY];
-    for (int i = 0; i < nbElemX; i++) {
-      for (int j = 0; j < nbElemY; j++) {
-        fRaster[i][j] = sumRaster[i][j];
-      }
-    }
-
-    // save geotiff
-    GridCoverageFactory gcf = new GridCoverageFactory();
-    CoordinateReferenceSystem crs = CRS.decode("EPSG:2056");
-
-    ReferencedEnvelope referencedEnvelope = new ReferencedEnvelope(X_MIN, X_MAX, Y_MIN, Y_MAX, crs);
-    GridCoverage2D gc = gcf.create("name", fRaster, referencedEnvelope);
-
-    GeoTiffWriter writer = new GeoTiffWriter(file);
-    writer.write(gc, null);
-    writer.dispose();
   }
 
   // get boundry: Upper Left Corner

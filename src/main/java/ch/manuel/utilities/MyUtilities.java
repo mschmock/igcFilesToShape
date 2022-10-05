@@ -207,10 +207,6 @@ public class MyUtilities {
     return selectedFile;
   }
 
-  //Nachricht anzeigen: Titel + Warning icon
-  private static void getMessage(String text1, String text2) {
-    JOptionPane.showMessageDialog(null, text1, text2, JOptionPane.WARNING_MESSAGE);
-  }
 
   // YES - NO Dialog
   public static int getYesNoDialog(String txt, String title) {

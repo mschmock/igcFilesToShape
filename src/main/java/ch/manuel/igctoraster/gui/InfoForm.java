@@ -46,6 +46,10 @@ public class InfoForm extends javax.swing.JDialog {
     jButton1 = new javax.swing.JButton();
 
     setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+    setTitle("Information");
+    setMaximumSize(new java.awt.Dimension(500, 600));
+    setResizable(false);
+    setSize(new java.awt.Dimension(0, 0));
 
     jLabel1.setText("jLabel1");
 
